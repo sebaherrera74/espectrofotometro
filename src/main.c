@@ -14,7 +14,13 @@
 
 
 #include "sapi.h"
-
+#include "TareasEspect.h"
+#include "FreeRTOSConfig.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "semphr.h"
+#include "queue.h"
+#include "debouncetecla.h"
 
 DEBUG_PRINT_ENABLE;
 
@@ -28,7 +34,7 @@ DEBUG_PRINT_ENABLE;
 
 
 /*=====[Definiciones de variables globales privadas]=========================*/
-
+void teclas_config(void);
 
 
 /*=====[Funcion principal, punto de entrada al programa luegp de encender]===*/
@@ -36,31 +42,76 @@ DEBUG_PRINT_ENABLE;
 int main (void)
 {
 
+	int Error_creacion_Colas=0; //Variable para verificar la crecion de colas y semaforos
 
 	// ----- Configuraciones -------------------------
-   boardInit();
-   i2cInit( I2C0, 100000 );
-
-
+	boardInit();
+	i2cInit( I2C0, 100000 );
 	uartConfig( UART_USB, 115200 );
 	uartWriteString( UART_USB,"Driver de Espectrofotometro \r\n" );
+	teclas_config();
+    //Aqui tendria que ir el chequeo de la posicion cero del motor
 
-   // ----- Repetir por siempre ---------------------
-   while(TRUE) {
+	/* funcion que crea semaforos y colas a utilizar */
+	//Error_creacion_Colas=sem_queues_init();  //Creacion de colas y semaforos
+
+
+	//CREACION DE TAREAS EN  freeRTOS
+
+	//-------------Tarea polling de teclas --------------
+
+	BaseType_t res1 =xTaskCreate(tarea_teclas,                     // Funcion de la tarea a ejecutar
+			(const char *)"Teclas polling",   // Nombre de la tarea como String amigable para el usuario
+			configMINIMAL_STACK_SIZE*2,      // Cantidad de stack de la tarea
+			tecla_config,                    // Parametros de tarea
+			tskIDLE_PRIORITY+1,              // Prioridad de la tarea
+			0);                              // Puntero a la tarea creada en el sistema
 
 
 
 
-   }
 
-   // NO DEBE LLEGAR NUNCA AQUI, debido a que a este programa se ejecuta
-   // directamenteno sobre un microcontrolador y no es llamado por ningun
-   // Sistema Operativo, como en el caso de un programa para PC.
-   return 0;
+
+
+	//Si se creron bien las colas y los semaforos lanzo el scheduler
+	if (Error_creacion_Colas==0)
+	{
+		vTaskStartScheduler();
+	}else
+	{
+		printf("Error al iniciar el sistema !!!");
+	}
+
+
+	// ----- Repetir por siempre ---------------------
+	while(TRUE) {
+
+
+
+
+	}
+
+	// NO DEBE LLEGAR NUNCA AQUI, debido a que a este programa se ejecuta
+	// directamenteno sobre un microcontrolador y no es llamado por ningun
+	// Sistema Operativo, como en el caso de un programa para PC.
+	return 0;
 }
 
 
+void teclas_config(void)
+{
+	tecla_config[0].tecla= TEC1;
+	tecla_config[0].sem_tec_pulsada	= xSemaphoreCreateBinary();
 
+	tecla_config[1].tecla= TEC2;
+	tecla_config[1].sem_tec_pulsada	= xSemaphoreCreateBinary();
+
+	tecla_config[2].tecla= TEC3;
+	tecla_config[2].sem_tec_pulsada	= xSemaphoreCreateBinary();
+
+	tecla_config[3].tecla= TEC4;
+	tecla_config[3].sem_tec_pulsada = xSemaphoreCreateBinary();
+}
 
 
 
