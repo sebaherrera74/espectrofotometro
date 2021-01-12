@@ -68,6 +68,13 @@ int main (void)
 			0);                              // Puntero a la tarea creada en el sistema
 
 
+	BaseType_t res2 =xTaskCreate(tarea_general,                     // Funcion de la tarea a ejecutar
+				(const char *)"Tarea gral",   // Nombre de la tarea como String amigable para el usuario
+				configMINIMAL_STACK_SIZE*2,      // Cantidad de stack de la tarea
+				tecla_config,                    // Parametros de tarea
+				tskIDLE_PRIORITY+1,              // Prioridad de la tarea
+				0);                              // Puntero a la tarea creada en el sistema
+
 
 
 
@@ -85,7 +92,6 @@ int main (void)
 
 	// ----- Repetir por siempre ---------------------
 	while(TRUE) {
-
 
 
 

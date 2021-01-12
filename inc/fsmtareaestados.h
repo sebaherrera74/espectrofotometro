@@ -1,4 +1,4 @@
-/*=====[Nombre del modulo]=====================================================
+/*=====[Maquina de estados de Tarea General]=====================================================
  * Copyright 2021 Sebastian Herrera <sebaherrera152@gmail.com>
  * All rights reserved.
  * Licencia: Texto de la licencia o al menos el nombre y un link
@@ -6,12 +6,14 @@
  *
  * Version: 0.0.1
  * Fecha de creacion: 2021/01/11
+ *
+ *
  */
 
 /*=====[Evitar inclusion multiple comienzo]==================================*/
 
-#ifndef _TAREASESPECT_H_
-#define _TAREASESPECT_H_
+#ifndef _FSMTAREAESTADOS_H_
+#define _FSMTAREAESTADOS_H_
 
 /*=====[Inclusiones de dependencias de funciones publicas]===================*/
 
@@ -25,6 +27,7 @@ extern "C" {
 #endif
 
 /*=====[Macros de definicion de constantes publicas]=========================*/
+
 
 
 /*=====[Macros estilo funcion publicas]======================================*/
@@ -41,17 +44,17 @@ extern "C" {
 // Tipo de datos enumerado
 
 
+// Tipo de datos estructua, union o campo de bits
+
 /*=====[Prototipos de funciones publicas]====================================*/
+void fsmtareaestadosError( void );
+void fsmtareaestadosInit( void );
+void fsmtareaestadosUpdate( void );
 
-void tarea_teclas( void* taskParmPtr);
-void tarea_general( void* taskParmPtr);
-
-
-//bool_t rtcInit( rtc_t* rtc );
 
 /*=====[Prototipos de funciones publicas de interrupcion]====================*/
 
-
+void UART0_IRQHandler(void);
 
 /*=====[C++ fin]=============================================================*/
 

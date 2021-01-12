@@ -13,6 +13,7 @@
 #include "sapi.h"
 #include "debouncetecla.h"
 #include "task.h"
+#include "fsmtareaestados.h"
 /*=====[Inclusiones de dependencias de funciones privadas]===================*/
 
 
@@ -65,19 +66,34 @@ void tarea_teclas( void* taskParmPtr ){
 
 	//inicializacion teclas
 	int i = 0;
-	for (i = 0; i < 4; i++)
+	for (i = 0; i < 4; i++){
 		mefbotonInit(&config[i]);
+	}
 
-	// Tarea periodica cada 10 ms
+
 	portTickType xPeriodicity =  40/ portTICK_RATE_MS;
 	portTickType xLastWakeTime = xTaskGetTickCount();
 
 	// ---------- REPETIR POR SIEMPRE --------------------------
 	while(TRUE) {
-		for (i = 0; i < 4; i++)
+		for (i = 0; i < 4; i++){
 			actualizacionTecla(&config[i]);  //update de tareas teclas 1 ,2
+		}
 		vTaskDelayUntil( &xLastWakeTime, xPeriodicity );
 	}
+}
+
+
+
+void tarea_general( void* taskParmPtr ){
+	tTecla* config = (tTecla*) taskParmPtr;
+
+	fsmtareaestadosInit();
+
+	while(TRUE) {
+		fsmtareaestadosUpdate();
+		vTaskDelay(100/portTICK_RATE_MS);
+		}
 }
 
 /*=====[Implementaciones de funciones de interrupcion publicas]==============*/
