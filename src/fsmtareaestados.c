@@ -17,7 +17,9 @@
 /*=====[Inclusiones de dependencias de funciones privadas]===================*/
 
 #include "fsmtareaestados.h"
-#include"funcionespantalla.h"
+#include "funcionespantalla.h"
+#include "debouncetecla.h"
+#include "FreeRTOS.h"
 
 
 /*=====[Macros de definicion de constantes privadas]=========================*/
@@ -44,6 +46,20 @@ typedef enum{
 	ESTADO_FINAL
 } fsmtareaestados_t;
 
+typedef enum{
+	ENSAYOS,
+	ENSAYO_ELOD   ,
+	ENSAYO_EBLO   ,
+} menuensayos_t;
+
+typedef enum{
+	ENSAYO_ELOD_INICIAL,
+	ENSAYO_ELOD_CONFIRMACION   ,
+	ENSAYO_ELOD_PROCESO   ,
+} menuensayoselod_t;
+
+
+
 
 // Tipo de datos estructua, union o campo de bits
 
@@ -53,12 +69,13 @@ typedef enum{
 
 /*=====[Definiciones de Variables globales publicas]=========================*/
 
-
+static volatile uint16_t longitudonda=0;
+char texto[7];
 
 /*=====[Definiciones de Variables globales privadas]=========================*/
 fsmtareaestados_t fsmState;
-
-
+menuensayos_t   tipoensayo;
+menuensayoselod_t ensayoselod;
 /*=====[Prototipos de funciones privadas]====================================*/
 
 
@@ -88,6 +105,7 @@ void fsmtareaestadosInit( void )
 // FSM Update Sate Function
 void fsmtareaestadosUpdate( void ){
 
+
 	switch( fsmState ){
 
 	case ESTADO_INICIAL:
@@ -96,53 +114,150 @@ void fsmtareaestadosUpdate( void ){
 		//para continuar
 		cambiofondo(ILI9341_LIGHTCORAL);
 		fsmState=ESTADO_MENU_ENSAYOS;
+		tipoensayo=ENSAYOS;
 
 		break;
-
-
 
 	case ESTADO_MENU_ENSAYOS:
-		tipoensayos();
+
+
+		if(xSemaphoreTake(tecla_config[0].sem_tec_pulsada ,0)){
+			tipoensayo=ENSAYO_ELOD;
+		}
+		if (xSemaphoreTake(tecla_config[1].sem_tec_pulsada ,0)){
+			tipoensayo=ENSAYO_EBLO;
+		}
+
+		switch( tipoensayo ){
+		case ENSAYOS:
+
+			tipoensayos();
+			break;
+		case ENSAYO_ELOD:
+			ensayolongitudonda();
+			if(xSemaphoreTake(tecla_config[2].sem_tec_pulsada ,0)){
+				fsmState=ESTADO_ELOD;
+				ensayoselod=ENSAYO_ELOD_INICIAL;
+				cambiofondo(ILI9341_LIGHTCORAL);
+
+
+			}
+			break;
+		case ENSAYO_EBLO:
+			ensayobarrido();
+			if(xSemaphoreTake(tecla_config[2].sem_tec_pulsada ,0)){
+				fsmState=ESTADO_EBLO;
+			}
+			break;
+		default:
+			tipoensayos();
+			break;
+		}
+
+		if(xSemaphoreTake(tecla_config[3].sem_tec_pulsada ,0)){  //si presiono tecla 4 return vuelvo al inicio
+			fsmState=ESTADO_MENU_ENSAYOS;
+			//tipoensayo=ENSAYOS;
+		}
 
 		break;
 
-	case ESTADO_ELOD:
-
-		/* UPDATE OUTPUTS */
-		// Code for update outputs...
-
-		/* CHECK TRANSITION CONDITIONS */
-		// Code for check transitions (some ifs)...
-
-		break;
+		case ESTADO_ELOD:
 
 
 
-	case ESTADO_EBLO:
+			switch( ensayoselod ){
+			case ENSAYO_ELOD_INICIAL:
+				if(xSemaphoreTake(tecla_config[0].sem_tec_pulsada ,0)){
+					if(tecla_config[0].tiempo_diff > 500){              //Si presiono mas de 500 mseg muevo la longitud d eonda de a 100
+						longitudonda=longitudonda+100;
+					}
+					longitudonda++;
+				}
+				if (xSemaphoreTake(tecla_config[1].sem_tec_pulsada ,0)){
+					if(tecla_config[0].tiempo_diff > 500){              //Si presiono mas de 500 mseg muevo la longitud d eonda de a 100
+						longitudonda=longitudonda-100;
+					}
+					longitudonda--;
+				}
 
-		/* UPDATE OUTPUTS */
-		// Code for update outputs...
+				if (longitudonda<=VALOR_MIN_LO){
+					longitudonda=VALOR_MIN_LO;
+				}
+				if (longitudonda>VALOR_MAX_LO){
+					longitudonda=VALOR_MIN_LO;
+					memset (texto,'\0',7);
+					cambiofondo(ILI9341_LIGHTCORAL);
 
-		/* CHECK TRANSITION CONDITIONS */
-		// Code for check transitions (some ifs)...
+				}
 
-		break;
+				sprintf(texto, "%d", longitudonda); // guardo el valor de longitud de onda seleccionado en un buffer
 
-	case ESTADO_FINAL:
-
-		/* UPDATE OUTPUTS */
-		// Code for update outputs...
-
-		/* CHECK TRANSITION CONDITIONS */
-		// Code for check transitions (some ifs)...
-
-		break;
+				seleccionlongonda(texto);
+				if(xSemaphoreTake(tecla_config[2].sem_tec_pulsada ,0)){
+					ensayoselod =ENSAYO_ELOD_CONFIRMACION;
+					cambiofondo(ILI9341_LIGHTCORAL);
+				}
 
 
 
-	default:
-		fsmtareaestadosError();
-		break;
+				break;
+			case ENSAYO_ELOD_CONFIRMACION:
+				confirmacionensayo();
+				if(xSemaphoreTake(tecla_config[2].sem_tec_pulsada ,0)){
+					ensayoselod =ENSAYO_ELOD_PROCESO;
+					}
+
+
+				if (xSemaphoreTake(tecla_config[3].sem_tec_pulsada ,0)){
+					ensayoselod =ENSAYO_ELOD_INICIAL;
+					cambiofondo(ILI9341_LIGHTCORAL);
+				}
+				break;
+			case ENSAYO_ELOD_PROCESO:
+
+				break;
+			default:
+
+				break;
+			}
+
+			if(xSemaphoreTake(tecla_config[3].sem_tec_pulsada ,0)){  //si presiono tecla 4 return vuelvo al inicio
+				cambiofondo(ILI9341_LIGHTCORAL);
+				fsmState=ESTADO_FINAL;
+
+			}
+			break;
+
+			case ESTADO_EBLO:
+				gpioToggle(LED1);
+				if(xSemaphoreTake(tecla_config[3].sem_tec_pulsada ,0)){  //si presiono tecla 4 return vuelvo al inicio
+
+					fsmState=ESTADO_FINAL;
+					//tipoensayo=ENSAYOS;
+
+				}
+
+				break;
+
+			case ESTADO_FINAL:
+				fsmState=ESTADO_MENU_ENSAYOS;
+				tipoensayo=ENSAYOS;
+
+
+
+				/* UPDATE OUTPUTS */
+				// Code for update outputs...
+
+				/* CHECK TRANSITION CONDITIONS */
+				// Code for check transitions (some ifs)...
+
+				break;
+
+
+
+			default:
+				fsmtareaestadosError();
+				break;
 	}
 }
 

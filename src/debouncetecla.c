@@ -10,7 +10,6 @@
 #include "debouncetecla.h"
 
 #include "FreeRTOSConfig.h"
-#include "FreeRTOSConfig.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "sapi.h"

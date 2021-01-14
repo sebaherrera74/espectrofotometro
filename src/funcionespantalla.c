@@ -14,9 +14,12 @@
 
 #define MSG_PANTALLA1   "El Motor no esta\n posicionado en CERO"
 #define MSG_PANTALLA2   "Posicionando motor\nen longitud de\nonda cero"
-#define MSG_PANTALLA3   "Ensayo determinada\nlongitud onda\npresione:: TEC1"
-#define MSG_PANTALLA3_1 "Ensayo Barrido\nlongitud de onda\npresione:: TEC4"
-
+#define MSG_PANTALLA3   "Ensayo determinada\nlongitud onda\n"
+#define MSG_PANTALLA3_1 "Ensayo Barrido\nlongitud de onda\n"
+#define MSG_PANTALLA4   "Seleccione Longitud \n      de Onda"
+#define MSG_PANTALLA5   "Desea realizar el\nensayo en la\nlongitud de onda ?"
+#define MSG_PANTALLA6   "SI Presione  ENTER"
+#define MSG_PANTALLA7   "NO Presione RETURN"
 /*=====[Implementations of public functions]=================================*/
 
 void InitLcd(void){
@@ -114,17 +117,40 @@ void barraColores(void){
 }
 
 void tipoensayos(void){
-	TM_ILI9341_Puts(0,0, MSG_PANTALLA3, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_COLOR_RED);
-	TM_ILI9341_Puts(0,120, MSG_PANTALLA3_1, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_COLOR_RED);
+	TM_ILI9341_Puts(0,0, MSG_PANTALLA3, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_LIGHTCORAL);
+	TM_ILI9341_Puts(0,120, MSG_PANTALLA3_1, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_LIGHTCORAL);
 }
+void ensayolongitudonda(void){
+	TM_ILI9341_Puts(0,0, MSG_PANTALLA3, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_COLOR_RED);
+	TM_ILI9341_Puts(0,120, MSG_PANTALLA3_1, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_LIGHTCORAL);
+}
+
 
 void ensayobarrido(void){
+	TM_ILI9341_Puts(0,0, MSG_PANTALLA3, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_LIGHTCORAL);
+	TM_ILI9341_Puts(0,120, MSG_PANTALLA3_1, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_COLOR_RED);
 
 }
 
-void ensayolongitudonda(void){
-
+void seleccionlongonda(char *valorseleccionado){
+	TM_ILI9341_Puts(0,0, MSG_PANTALLA4, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_COLOR_RED);
+	TM_ILI9341_Puts(10,130, valorseleccionado, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_LIGHTCORAL);
 }
+
+void confirmacionensayo(void){
+	TM_ILI9341_Puts(0,0, MSG_PANTALLA5, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_COLOR_RED);
+	TM_ILI9341_Puts(0,120, MSG_PANTALLA6, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_LIGHTCORAL);
+	TM_ILI9341_Puts(0,160, MSG_PANTALLA7, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_LIGHTCORAL);
+}
+
+void respsi(void){
+	TM_ILI9341_Puts(60,120, MSG_PANTALLA6, &TM_Font_16x26, ILI9341_COLOR_BLACK,ILI9341_COLOR_RED );
+}
+
+void respno(void){
+	TM_ILI9341_Puts(120,120, MSG_PANTALLA7, &TM_Font_16x26, ILI9341_COLOR_BLACK,ILI9341_COLOR_RED );
+}
+
 
 /*=====[Inclusions of private function dependencies]=========================*/
 

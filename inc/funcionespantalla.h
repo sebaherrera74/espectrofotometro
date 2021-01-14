@@ -40,9 +40,13 @@ void posicioncero(void);
 void barraColores(void);
 
 void tipoensayos(void);
+
 void ensayobarrido(void);
 void ensayolongitudonda(void);
-
+void seleccionlongonda(char *valorseleccionado);
+void confirmacionensayo(void);
+void respsi(void);
+void respno(void);
 /*=====[Prototypes (declarations) of public interrupt functions]=============*/
 
 /*=====[C++ - end]===========================================================*/

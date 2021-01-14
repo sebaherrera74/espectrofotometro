@@ -71,7 +71,7 @@ void tarea_teclas( void* taskParmPtr ){
 	}
 
 
-	portTickType xPeriodicity =  40/ portTICK_RATE_MS;
+	portTickType xPeriodicity =  10/ portTICK_RATE_MS;
 	portTickType xLastWakeTime = xTaskGetTickCount();
 
 	// ---------- REPETIR POR SIEMPRE --------------------------
@@ -79,7 +79,9 @@ void tarea_teclas( void* taskParmPtr ){
 		for (i = 0; i < 4; i++){
 			actualizacionTecla(&config[i]);  //update de tareas teclas 1 ,2
 		}
-		vTaskDelayUntil( &xLastWakeTime, xPeriodicity );
+
+		vTaskDelay(1/portTICK_RATE_MS);
+		//vTaskDelayUntil( &xLastWakeTime, xPeriodicity );
 	}
 }
 
@@ -92,7 +94,7 @@ void tarea_general( void* taskParmPtr ){
 
 	while(TRUE) {
 		fsmtareaestadosUpdate();
-		vTaskDelay(100/portTICK_RATE_MS);
+		vTaskDelay(1/portTICK_RATE_MS);
 		}
 }
 
