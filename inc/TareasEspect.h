@@ -45,6 +45,7 @@ extern "C" {
 
 void tarea_teclas( void* taskParmPtr);
 void tarea_general( void* taskParmPtr);
+void tarea_motorstepper( void* taskParmPtr);
 
 
 //bool_t rtcInit( rtc_t* rtc );

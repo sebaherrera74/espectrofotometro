@@ -14,6 +14,8 @@
 #include "debouncetecla.h"
 #include "task.h"
 #include "fsmtareaestados.h"
+#include "steppermotor_l297.h"
+#include "sem_queues_espect.h"
 /*=====[Inclusiones de dependencias de funciones privadas]===================*/
 
 
@@ -98,17 +100,33 @@ void tarea_general( void* taskParmPtr ){
 		}
 }
 
+void tarea_motorstepper( void* taskParmPtr ){
+	tTecla* config = (tTecla*) taskParmPtr;
+
+	uint32_t aux=0;
+
+	stepperMotorL297Init(&steppermotor,48,GPIO4,GPIO7,GPIO6,GPIO5);
+	stepperMotorL297SetVelocidad(&steppermotor,velocidad_alta);
+
+
+
+	while(TRUE) {
+
+		if(xQueueReceive(valorLOselec_queue, &aux, portMAX_DELAY)){
+			stepperMotorL297MoveXNanometers(&steppermotor,aux);
+		}
+
+
+		vTaskDelay(100/portTICK_RATE_MS);
+		}
+}
+
+
+
+
 /*=====[Implementaciones de funciones de interrupcion publicas]==============*/
 
-void UART0_IRQHandler(void)
-{
-	// ...
-}
 
 /*=====[Implementaciones de funciones privadas]==============================*/
 
-static void funPrivada(void)
-{
-	// ...
-}
 

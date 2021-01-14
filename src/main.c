@@ -21,6 +21,7 @@
 #include "semphr.h"
 #include "queue.h"
 #include "debouncetecla.h"
+#include "sem_queues_espect.h"
 
 DEBUG_PRINT_ENABLE;
 
@@ -53,29 +54,36 @@ int main (void)
     //Aqui tendria que ir el chequeo de la posicion cero del motor
 
 	/* funcion que crea semaforos y colas a utilizar */
-	//Error_creacion_Colas=sem_queues_init();  //Creacion de colas y semaforos
+	Error_creacion_Colas=sem_queues_init();  //Creacion de colas y semaforos
 
 
 	//CREACION DE TAREAS EN  freeRTOS
 
 	//-------------Tarea polling de teclas --------------
 
-	BaseType_t res1 =xTaskCreate(tarea_teclas,                     // Funcion de la tarea a ejecutar
-			(const char *)"Teclas polling",   // Nombre de la tarea como String amigable para el usuario
-			configMINIMAL_STACK_SIZE*2,      // Cantidad de stack de la tarea
-			tecla_config,                    // Parametros de tarea
-			tskIDLE_PRIORITY+1,              // Prioridad de la tarea
-			0);                              // Puntero a la tarea creada en el sistema
+	BaseType_t res1 =xTaskCreate(tarea_teclas,   // Funcion de la tarea a ejecutar
+			(const char *)"Teclas polling",      // Nombre de la tarea como String amigable para el usuario
+			configMINIMAL_STACK_SIZE*2,          // Cantidad de stack de la tarea
+			tecla_config,                        // Parametros de tarea
+			tskIDLE_PRIORITY+1,                  // Prioridad de la tarea
+			0);                                  // Puntero a la tarea creada en el sistema
 
 
-	BaseType_t res2 =xTaskCreate(tarea_general,                     // Funcion de la tarea a ejecutar
-				(const char *)"Tarea gral",   // Nombre de la tarea como String amigable para el usuario
+	BaseType_t res2 =xTaskCreate(tarea_general,  // Funcion de la tarea a ejecutar
+				(const char *)"Tarea gral",      // Nombre de la tarea como String amigable para el usuario
 				configMINIMAL_STACK_SIZE*2,      // Cantidad de stack de la tarea
 				tecla_config,                    // Parametros de tarea
 				tskIDLE_PRIORITY+1,              // Prioridad de la tarea
 				0);                              // Puntero a la tarea creada en el sistema
 
 
+
+	BaseType_t res3 =xTaskCreate(tarea_motorstepper,     // Funcion de la tarea a ejecutar
+					(const char *)"motor paso a paso ",  // Nombre de la tarea como String amigable para el usuario
+					configMINIMAL_STACK_SIZE*2,          // Cantidad de stack de la tarea
+					0,                                   // Parametros de tarea
+					tskIDLE_PRIORITY+1,                  // Prioridad de la tarea
+					0);                                  // Puntero a la tarea creada en el sistema
 
 
 

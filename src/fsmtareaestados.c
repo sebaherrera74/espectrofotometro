@@ -20,6 +20,7 @@
 #include "funcionespantalla.h"
 #include "debouncetecla.h"
 #include "FreeRTOS.h"
+#include "sem_queues_espect.h"
 
 
 /*=====[Macros de definicion de constantes privadas]=========================*/
@@ -215,6 +216,14 @@ void fsmtareaestadosUpdate( void ){
 				break;
 			case ENSAYO_ELOD_PROCESO:
 
+				xQueueSend(valorLOselec_queue, &longitudonda, portMAX_DELAY);
+
+				//Aqui tendria que ver la forma de implementar la muestra del valor de longitud
+				//de onda seleccionado y el valor medido del conversor analogico}
+				//tambien el envio del valor por el puerto serie
+				//Por ahora solo lo envio al estado inicial
+				ensayoselod =ENSAYO_ELOD_INICIAL;
+				cambiofondo(ILI9341_LIGHTCORAL);
 				break;
 			default:
 
