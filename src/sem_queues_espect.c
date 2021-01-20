@@ -32,11 +32,14 @@ int sem_queues_init(void)
    //-----Creacion de Semaforos binarios--------
 
 
+
+   sem_posicioncero=xSemaphoreCreateBinary();
    sem_inicio=xSemaphoreCreateBinary();
    sem_inicio_barrido=xSemaphoreCreateBinary();
    sem_final_barrido =xSemaphoreCreateBinary();
 
-   if((sem_inicio_barrido==NULL)||(sem_final_barrido==NULL)||(sem_inicio==NULL) ) //Verifico creacion de semaforos binarios
+   if((sem_inicio_barrido==NULL)||(sem_final_barrido==NULL)||(sem_inicio==NULL)||
+		   sem_posicioncero==NULL) //Verifico creacion de semaforos binarios
         {
          printf ("Error al crear Semaforos binarios ");
          return 1;

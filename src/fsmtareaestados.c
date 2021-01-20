@@ -21,6 +21,8 @@
 #include "debouncetecla.h"
 #include "FreeRTOS.h"
 #include "sem_queues_espect.h"
+#include "swichtIrq.h"
+#include "steppermotor_l297.h"
 
 
 /*=====[Macros de definicion de constantes privadas]=========================*/
@@ -57,6 +59,7 @@ typedef enum{
 	ENSAYO_ELOD_INICIAL,
 	ENSAYO_ELOD_CONFIRMACION   ,
 	ENSAYO_ELOD_PROCESO   ,
+	ENSAYO_ELOD_MUESTRAVALOR
 } menuensayoselod_t;
 
 
@@ -70,7 +73,7 @@ typedef enum{
 
 /*=====[Definiciones de Variables globales publicas]=========================*/
 
-static volatile uint16_t longitudonda=0;
+static uint16_t longitudonda=0;
 char texto[7];
 
 /*=====[Definiciones de Variables globales privadas]=========================*/
@@ -99,6 +102,7 @@ void fsmtareaestadosInit( void )
 	InitLcd();	                //inicilizo el display Ili9341
 	RotarPantalla();            //Roto pantalla a horizontal
 	barraColores();
+	swichtIrq_init(&swichtIrq,GPIO6); //inicializo el swicht conectado el na a GPIO06
 
 	fsmState = ESTADO_INICIAL;   // Set initial state
 }
@@ -111,8 +115,16 @@ void fsmtareaestadosUpdate( void ){
 
 	case ESTADO_INICIAL:
 		posicioncero();
-		//Aqui verificaria si el motor esta en posicion cero lo voy a simular como si esta
-		//para continuar
+
+		while(!swichtIrqEstado(&swichtIrq)){			//veo la posicion del swicht sino esta en cero giro el motor
+        /* que conviene aqui llamar directamente a la funcion de girra el motor
+         * de la libreria de sttepermotor.h o un semaforo que vaya a la tarea?
+         */
+
+			// xSemaphoreGive(sem_posicioncero);No conviene ponerlo en la tarea
+			 stepperMotorL297Move1nanometerCCW(&steppermotor);
+
+		}
 		cambiofondo(ILI9341_LIGHTCORAL);
 		fsmState=ESTADO_MENU_ENSAYOS;
 		tipoensayo=ENSAYOS;
@@ -163,9 +175,6 @@ void fsmtareaestadosUpdate( void ){
 		break;
 
 		case ESTADO_ELOD:
-
-
-
 			switch( ensayoselod ){
 			case ENSAYO_ELOD_INICIAL:
 				if(xSemaphoreTake(tecla_config[0].sem_tec_pulsada ,0)){
@@ -180,7 +189,6 @@ void fsmtareaestadosUpdate( void ){
 					}
 					longitudonda--;
 				}
-
 				if (longitudonda<=VALOR_MIN_LO){
 					longitudonda=VALOR_MIN_LO;
 				}
@@ -188,43 +196,39 @@ void fsmtareaestadosUpdate( void ){
 					longitudonda=VALOR_MIN_LO;
 					memset (texto,'\0',7);
 					cambiofondo(ILI9341_LIGHTCORAL);
-
 				}
-
 				sprintf(texto, "%d", longitudonda); // guardo el valor de longitud de onda seleccionado en un buffer
-
 				seleccionlongonda(texto);
 				if(xSemaphoreTake(tecla_config[2].sem_tec_pulsada ,0)){
 					ensayoselod =ENSAYO_ELOD_CONFIRMACION;
 					cambiofondo(ILI9341_LIGHTCORAL);
 				}
-
-
-
 				break;
 			case ENSAYO_ELOD_CONFIRMACION:
 				confirmacionensayo();
 				if(xSemaphoreTake(tecla_config[2].sem_tec_pulsada ,0)){
 					ensayoselod =ENSAYO_ELOD_PROCESO;
-					}
-
-
+				}
 				if (xSemaphoreTake(tecla_config[3].sem_tec_pulsada ,0)){
 					ensayoselod =ENSAYO_ELOD_INICIAL;
 					cambiofondo(ILI9341_LIGHTCORAL);
 				}
 				break;
 			case ENSAYO_ELOD_PROCESO:
-
 				xQueueSend(valorLOselec_queue, &longitudonda, portMAX_DELAY);
-
 				//Aqui tendria que ver la forma de implementar la muestra del valor de longitud
 				//de onda seleccionado y el valor medido del conversor analogico}
 				//tambien el envio del valor por el puerto serie
 				//Por ahora solo lo envio al estado inicial
-				ensayoselod =ENSAYO_ELOD_INICIAL;
+				ensayoselod =ENSAYO_ELOD_MUESTRAVALOR;
 				cambiofondo(ILI9341_LIGHTCORAL);
 				break;
+
+			case ENSAYO_ELOD_MUESTRAVALOR:
+				valorlongondaselecc(texto);
+				break;
+
+
 			default:
 
 				break;
@@ -237,20 +241,20 @@ void fsmtareaestadosUpdate( void ){
 			}
 			break;
 
-			case ESTADO_EBLO:
-				gpioToggle(LED1);
-				if(xSemaphoreTake(tecla_config[3].sem_tec_pulsada ,0)){  //si presiono tecla 4 return vuelvo al inicio
+		case ESTADO_EBLO:
+			gpioToggle(LED1);
+			if(xSemaphoreTake(tecla_config[3].sem_tec_pulsada ,0)){  //si presiono tecla 4 return vuelvo al inicio
 
-					fsmState=ESTADO_FINAL;
-					//tipoensayo=ENSAYOS;
+				fsmState=ESTADO_FINAL;
+				//tipoensayo=ENSAYOS;
 
-				}
+			}
 
-				break;
+			break;
 
-			case ESTADO_FINAL:
-				fsmState=ESTADO_MENU_ENSAYOS;
-				tipoensayo=ENSAYOS;
+		case ESTADO_FINAL:
+			fsmState=ESTADO_MENU_ENSAYOS;
+			tipoensayo=ENSAYOS;
 
 
 

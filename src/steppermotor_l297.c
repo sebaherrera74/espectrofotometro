@@ -364,6 +364,55 @@ void stepperMotorL297MoveXNanometers(steppermotor_l297_t *steppermotor,uint32_t 
 
 }
 
+//Muevo un nanometro en sentido de las agujas del reloj
+void stepperMotorL297Move1nanometerCW(steppermotor_l297_t *steppermotor){
+
+	            int i=0;
+	            countIrq=0;
+	            //habilito el motor
+				stepperMotorL297SetEnable(steppermotor,motor_enable);
+				//habilito giro en sentido agujas de reloj
+				stepperMotorL297SetDireccionGiro(steppermotor,sentido_cw);
+	            //lanzo timmer
+
+				while(countIrq<=2*NANOMT_XPASO){
+					signalStart();
+				}
+				stepperMotorL297SetEnable(steppermotor,motor_disable);
+				signalStop();
+
+
+}
+
+//Muevo un nanometro en sentido de las agujas del reloj
+void stepperMotorL297Move1nanometerCCW(steppermotor_l297_t *steppermotor){
+
+	            int i=0;
+	            countIrq=0;
+	            //habilito el motor
+				stepperMotorL297SetEnable(steppermotor,motor_enable);
+				//habilito giro en sentido agujas de reloj
+				stepperMotorL297SetDireccionGiro(steppermotor,sentido_ccw);
+	            //lanzo timmer
+
+				while(countIrq<=2*NANOMT_XPASO){
+					signalStart();
+				}
+				stepperMotorL297SetEnable(steppermotor,motor_disable);
+				signalStop();
+
+
+}
+
+/*Funcion para el barrido de longitud de onda
+ * Esta seria una funcion que cuando se selecciona el ensayo ese,
+ * el motor primero se posicionaria en la posicion cero, scwitch de poscion en cero
+ * Si el motor no esta en el swicth cero , giraria en sentido contrario a las agujas del reloj
+ * hasta posicionarse en cero.
+ * Una vez realizado esto comenzaria el movimiento del motor en sentido de las agujas del reloj
+ * hasta contar los 12600 pasos(1050 Nanometros)
+ *
+ */
 
 
 

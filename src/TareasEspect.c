@@ -105,19 +105,20 @@ void tarea_motorstepper( void* taskParmPtr ){
 
 	uint32_t aux=0;
 
-	stepperMotorL297Init(&steppermotor,48,GPIO4,GPIO7,GPIO6,GPIO5);
-	stepperMotorL297SetVelocidad(&steppermotor,velocidad_alta);
+	stepperMotorL297Init(&steppermotor,48,GPIO4,GPIO7,GPIO8,GPIO5);
+	stepperMotorL297SetVelocidad(&steppermotor,velocidad_media);
 
 
 
 	while(TRUE) {
+
 
 		if(xQueueReceive(valorLOselec_queue, &aux, portMAX_DELAY)){
 			stepperMotorL297MoveXNanometers(&steppermotor,aux);
 		}
 
 
-		vTaskDelay(100/portTICK_RATE_MS);
+		vTaskDelay(40/portTICK_RATE_MS);
 		}
 }
 

@@ -12,6 +12,7 @@
 
 //SemaphoreHandle_t fin_posicion_motor;
 
+SemaphoreHandle_t sem_posicioncero;
 SemaphoreHandle_t sem_inicio_barrido;
 SemaphoreHandle_t sem_final_barrido;
 SemaphoreHandle_t sem_inicio;

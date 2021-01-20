@@ -151,8 +151,13 @@ steppermotor_l297_half_full stepperMotorL297GetHalfFull(steppermotor_l297_t *ste
 void stepperMotorL297MoveXNanometers(steppermotor_l297_t *steppermotor,uint32_t LongOnda);
 
 
+/*Funcion que mueve el motor en sentido de las agujas del reloj 1 nanometro*/
 
+void stepperMotorL297Move1nanometerCW(steppermotor_l297_t *steppermotor);
 
+/*Funcion que mueve el motor en sentido contrario de las agujas del reloj 1 nanometro*/
+
+void stepperMotorL297Move1nanometerCCW(steppermotor_l297_t *steppermotor);
 
 
 
