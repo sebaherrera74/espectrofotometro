@@ -21,6 +21,7 @@
 #define MSG_PANTALLA6   "SI Presione  ENTER"
 #define MSG_PANTALLA7   "NO Presione RETURN"
 #define MSG_PANTALLA8   "El valor de longitud\nde onda posicionado es:"
+#define MSG_PANTALLA9    "Desea realizar el\nensayo barrido\nlongitud de onda ?"
 /*=====[Implementations of public functions]=================================*/
 
 void InitLcd(void){
@@ -144,6 +145,12 @@ void confirmacionensayo(void){
 	TM_ILI9341_Puts(0,160, MSG_PANTALLA7, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_LIGHTCORAL);
 }
 
+void confirmacionensayoEblo(void){
+	TM_ILI9341_Puts(0,0, MSG_PANTALLA9, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_COLOR_RED);
+	TM_ILI9341_Puts(0,120, MSG_PANTALLA6, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_LIGHTCORAL);
+	TM_ILI9341_Puts(0,160, MSG_PANTALLA7, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_LIGHTCORAL);
+
+}
 void valorlongondaselecc(char *valorseleccionado){
 	    TM_ILI9341_Puts(0,0, MSG_PANTALLA8, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_COLOR_RED);
 		TM_ILI9341_Puts(110,120, valorseleccionado, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_LIGHTCORAL);

@@ -40,7 +40,7 @@
 
 
 // Tipo de datos enumerado
-// FSM state names
+// Tipos de estados del display
 typedef enum{
 	ESTADO_INICIAL,
 	ESTADO_MENU_ENSAYOS,
@@ -49,12 +49,14 @@ typedef enum{
 	ESTADO_FINAL
 } fsmtareaestados_t;
 
+//Ensayos posibles
 typedef enum{
 	ENSAYOS,
 	ENSAYO_ELOD   ,
 	ENSAYO_EBLO   ,
 } menuensayos_t;
 
+//Estadosposibles en el caso del ensayo de longitud de onda determinada
 typedef enum{
 	ENSAYO_ELOD_INICIAL,
 	ENSAYO_ELOD_CONFIRMACION   ,
@@ -62,6 +64,14 @@ typedef enum{
 	ENSAYO_ELOD_MUESTRAVALOR
 } menuensayoselod_t;
 
+
+//Estadosposibles en el caso del ensayo de barrido longitud de onda
+typedef enum{
+	ENSAYO_EBLO_INICIAL,
+	ENSAYO_EBLO_CONFIRMACION   ,
+	ENSAYO_EBLO_PROCESO   ,
+	ENSAYO_EBLO_FINAL
+} menuensayoseblo_t;
 
 
 
@@ -80,6 +90,8 @@ char texto[7];
 fsmtareaestados_t fsmState;
 menuensayos_t   tipoensayo;
 menuensayoselod_t ensayoselod;
+menuensayoseblo_t ensayoeblo;
+
 /*=====[Prototipos de funciones privadas]====================================*/
 
 
@@ -110,6 +122,8 @@ void fsmtareaestadosInit( void )
 // FSM Update Sate Function
 void fsmtareaestadosUpdate( void ){
 
+	uint32_t valor_maximo=100;//pongo un valor chico para probar
+	uint32_t valor_minimo=0;//pongo un valor chico para probar
 
 	switch( fsmState ){
 
@@ -160,6 +174,7 @@ void fsmtareaestadosUpdate( void ){
 			ensayobarrido();
 			if(xSemaphoreTake(tecla_config[2].sem_tec_pulsada ,0)){
 				fsmState=ESTADO_EBLO;
+				ensayoeblo=ENSAYO_EBLO_INICIAL;
 			}
 			break;
 		default:
@@ -242,15 +257,86 @@ void fsmtareaestadosUpdate( void ){
 			break;
 
 		case ESTADO_EBLO:
-			gpioToggle(LED1);
-			if(xSemaphoreTake(tecla_config[3].sem_tec_pulsada ,0)){  //si presiono tecla 4 return vuelvo al inicio
 
-				fsmState=ESTADO_FINAL;
-				//tipoensayo=ENSAYOS;
 
-			}
+			/*tengo que chequear la posicion del motor, porque puedo haber estado haciendo
+			 * otro ensayo y el motor no quedo en la posicion cero
+			 *Una vez que el motor llegue a cero comenzar el ensayo desde cero a 1050 nanometros
+			 */
 
-			break;
+
+			switch( ensayoeblo ){
+						case ENSAYO_EBLO_INICIAL:
+							//aQUI CHEQUEO POSICIONCERO SI PASA VOY A CONFIRMACION
+							if(longitudonda|=0){
+								cambiofondo(ILI9341_LIGHTCORAL);
+								posicioncero();
+								xQueueSend(valorLOselec_queue, &valor_minimo, 20);
+								longitudonda=valor_minimo;
+
+							}
+							ensayoeblo=ENSAYO_EBLO_CONFIRMACION;
+							cambiofondo(ILI9341_LIGHTCORAL);
+							break;
+						case ENSAYO_EBLO_CONFIRMACION:
+
+							//poner mensajes en diaplay de confirmacion o salida
+
+							confirmacionensayoEblo();
+							if(xSemaphoreTake(tecla_config[2].sem_tec_pulsada ,0)){
+								ensayoeblo =ENSAYO_EBLO_PROCESO;
+							}
+							if (xSemaphoreTake(tecla_config[3].sem_tec_pulsada ,0)){
+								ensayoeblo =ENSAYO_EBLO_FINAL;
+								cambiofondo(ILI9341_LIGHTCORAL);
+							}
+							break;
+
+						case ENSAYO_EBLO_PROCESO:
+							//disparo la tarea de motor
+
+							xQueueSend(valorLOselec_queue, &valor_maximo, 1);  //Aqui mando el barrido, con el valor maximo
+							longitudonda=valor_maximo; //Esto asigno porque aqui quedaria la longitud de onda
+
+							ensayoeblo =ENSAYO_EBLO_FINAL;
+
+							xQueueSend(valorLOselec_queue, &valor_minimo, 20); //vuelvo a posicion cero el motor
+							longitudonda=valor_minimo; //Esto asigno porque aqui quedaria la longitud de onda
+							cambiofondo(ILI9341_LIGHTCORAL);
+
+							break;
+
+						case ENSAYO_EBLO_FINAL:
+							//vuelvo a colocar el motor en posicion cero
+							//cambio variable global a cero
+							//
+							fsmState=ESTADO_MENU_ENSAYOS;
+							tipoensayo=ENSAYOS;
+							break;
+
+						default:
+
+							break;
+						}
+                     break;
+
+
+
+
+			/*while(!swichtIrqEstado(&swichtIrq)){			//veo la posicion del swicht sino esta en cero giro el motor
+			        /* que conviene aqui llamar directamente a la funcion de girra el motor
+			         * de la libreria de sttepermotor.h o un semaforo que vaya a la tarea?
+			         */
+
+						// xSemaphoreGive(sem_posicioncero);No conviene ponerlo en la tarea
+					//	 stepperMotorL297Move1nanometerCCW(&steppermotor);
+
+
+
+
+
+
+
 
 		case ESTADO_FINAL:
 			fsmState=ESTADO_MENU_ENSAYOS;
