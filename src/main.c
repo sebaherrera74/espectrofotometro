@@ -51,7 +51,7 @@ int main (void)
 	uartConfig( UART_USB, 115200 );
 	uartWriteString( UART_USB,"Driver de Espectrofotometro \r\n" );
 	teclas_config();
-    //Aqui tendria que ir el chequeo de la posicion cero del motor
+	//Aqui tendria que ir el chequeo de la posicion cero del motor
 
 	/* funcion que crea semaforos y colas a utilizar */
 	Error_creacion_Colas=sem_queues_init();  //Creacion de colas y semaforos
@@ -70,21 +70,28 @@ int main (void)
 
 
 	BaseType_t res2 =xTaskCreate(tarea_general,  // Funcion de la tarea a ejecutar
-				(const char *)"Tarea gral",      // Nombre de la tarea como String amigable para el usuario
-				configMINIMAL_STACK_SIZE*2,      // Cantidad de stack de la tarea
-				tecla_config,                    // Parametros de tarea
-				tskIDLE_PRIORITY+1,              // Prioridad de la tarea
-				0);                              // Puntero a la tarea creada en el sistema
+			(const char *)"Tarea gral",      // Nombre de la tarea como String amigable para el usuario
+			configMINIMAL_STACK_SIZE*2,      // Cantidad de stack de la tarea
+			tecla_config,                    // Parametros de tarea
+			tskIDLE_PRIORITY+1,              // Prioridad de la tarea
+			0);                              // Puntero a la tarea creada en el sistema
 
 
 
 	BaseType_t res3 =xTaskCreate(tarea_motorstepper,     // Funcion de la tarea a ejecutar
-					(const char *)"motor paso a paso ",  // Nombre de la tarea como String amigable para el usuario
-					configMINIMAL_STACK_SIZE*2,          // Cantidad de stack de la tarea
-					0,                                   // Parametros de tarea
-					tskIDLE_PRIORITY+2,                  // Prioridad de la tarea, le doy mas prioridad
-					0);                                  // Puntero a la tarea creada en el sistema
+			(const char *)"motor paso a paso ",  // Nombre de la tarea como String amigable para el usuario
+			configMINIMAL_STACK_SIZE*2,          // Cantidad de stack de la tarea
+			0,                                   // Parametros de tarea
+			tskIDLE_PRIORITY+2,                  // Prioridad de la tarea, le doy mas prioridad
+			0);                                  // Puntero a la tarea creada en el sistema
 
+
+	BaseType_t res4 =xTaskCreate(tarea_lecturaADC,     // Funcion de la tarea a ejecutar
+			(const char *)"lectura adc ",  // Nombre de la tarea como String amigable para el usuario
+			configMINIMAL_STACK_SIZE*2,          // Cantidad de stack de la tarea
+			0,                                   // Parametros de tarea
+			tskIDLE_PRIORITY+3,                  // Prioridad de la tarea, le doy mas prioridad
+			0);                                  // Puntero a la tarea creada en el sistema
 
 
 

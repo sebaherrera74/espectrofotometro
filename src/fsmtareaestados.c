@@ -85,6 +85,7 @@ typedef enum{
 
 static uint16_t longitudonda=0;
 char texto[7];
+char valorAnleido[10];
 
 /*=====[Definiciones de Variables globales privadas]=========================*/
 fsmtareaestados_t fsmState;
@@ -240,7 +241,18 @@ void fsmtareaestadosUpdate( void ){
 				break;
 
 			case ENSAYO_ELOD_MUESTRAVALOR:
-				valorlongondaselecc(texto);
+				//muestro el valor de la medicion realizada, en Volts
+				//Recibo de la cola el valor analogico leido
+
+				xQueueReceive(valorAnLeido, &valorAnleido, 1);
+
+
+				//Muestro valor de longitud de onda posicionado
+				valorlongondaselecc(texto,valorAnleido);
+
+
+
+
 				break;
 
 
@@ -267,13 +279,15 @@ void fsmtareaestadosUpdate( void ){
 
 			switch( ensayoeblo ){
 						case ENSAYO_EBLO_INICIAL:
-							//aQUI CHEQUEO POSICIONCERO SI PASA VOY A CONFIRMACION
+							/*AQUI CHEQUEO POSICIONCERO SI PASA VOY A CONFIRMACION
+							 * porque puede haber estado haciendo otro ensayo y no me quedo en cero
+							 * 							 */
+
 							if(longitudonda|=0){
 								cambiofondo(ILI9341_LIGHTCORAL);
 								posicioncero();
 								xQueueSend(valorLOselec_queue, &valor_minimo, 20);
 								longitudonda=valor_minimo;
-
 							}
 							ensayoeblo=ENSAYO_EBLO_CONFIRMACION;
 							cambiofondo(ILI9341_LIGHTCORAL);
@@ -300,8 +314,9 @@ void fsmtareaestadosUpdate( void ){
 
 							ensayoeblo =ENSAYO_EBLO_FINAL;
 
-							xQueueSend(valorLOselec_queue, &valor_minimo, 20); //vuelvo a posicion cero el motor
-							longitudonda=valor_minimo; //Esto asigno porque aqui quedaria la longitud de onda
+							//Podria poner algun mensaje para avisar que el motor
+							//termino el barrido y esta volviendo a cero
+
 							cambiofondo(ILI9341_LIGHTCORAL);
 
 							break;
@@ -310,6 +325,9 @@ void fsmtareaestadosUpdate( void ){
 							//vuelvo a colocar el motor en posicion cero
 							//cambio variable global a cero
 							//
+
+							xQueueSend(valorLOselec_queue, &valor_minimo, 20); //vuelvo a posicion cero el motor
+							longitudonda=valor_minimo; //Esto asigno porque aqui quedaria la longitud de onda
 							fsmState=ESTADO_MENU_ENSAYOS;
 							tipoensayo=ENSAYOS;
 							break;

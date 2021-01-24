@@ -16,6 +16,7 @@ SemaphoreHandle_t sem_posicioncero;
 SemaphoreHandle_t sem_inicio_barrido;
 SemaphoreHandle_t sem_final_barrido;
 SemaphoreHandle_t sem_inicio;
+SemaphoreHandle_t sem_motorposicionadoLOD; //Semaforo que avisa que el motor ya esta en la longitud de onda determinada
 
 SemaphoreHandle_t mutex_impresion;
 SemaphoreHandle_t mutex_impresion_1;
@@ -23,7 +24,7 @@ SemaphoreHandle_t mutex_impresion_1;
 
 QueueHandle_t valorLO_queue;
 QueueHandle_t valorLOselec_queue;
-QueueHandle_t valorAnLeido;
+QueueHandle_t valorAnLeido;       //Valor analogico leido
 QueueHandle_t txQueue;
 
 int sem_queues_init(void);

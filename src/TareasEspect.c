@@ -50,7 +50,7 @@
 
 
 /*=====[Prototipos de funciones privadas]====================================*/
-
+static char* itoa(int value, char* result, int base);
 
 
 /*=====[Implementaciones de funciones publicas]==============================*/
@@ -96,7 +96,7 @@ void tarea_general( void* taskParmPtr ){
 
 	while(TRUE) {
 		fsmtareaestadosUpdate();
-		vTaskDelay(1/portTICK_RATE_MS);
+		vTaskDelay(40/portTICK_RATE_MS);
 		}
 }
 
@@ -115,6 +115,11 @@ void tarea_motorstepper( void* taskParmPtr ){
 
 		if(xQueueReceive(valorLOselec_queue, &aux, portMAX_DELAY)){
 			stepperMotorL297MoveXNanometers(&steppermotor,aux);
+			//semaforo que avisa que el motor ya se posiciono en la longitud
+			//de onda
+			xSemaphoreGive( sem_motorposicionadoLOD );
+
+
 		}
 
 
@@ -122,12 +127,61 @@ void tarea_motorstepper( void* taskParmPtr ){
 		}
 }
 
+void tarea_lecturaADC( void* taskParmPtr ){
+	tTecla* config = (tTecla*) taskParmPtr;
 
+
+	static volatile char Buff[10];
+	static volatile uint16_t muestra = 0;
+	uint32_t aux=0;
+    adcConfig( ADC_ENABLE ); /* Inicializo ADC */
+
+
+
+	while(TRUE) {
+
+		if(xSemaphoreTake( sem_motorposicionadoLOD,portMAX_DELAY)){
+		muestra = adcRead( CH1 ); //Leo valor de la muestra tomado
+
+		itoa( muestra,Buff,10 ); /* 10 significa decimal */
+
+		//mando por una cola el valor leido del conversor ADC
+		xQueueSend(valorAnLeido,&Buff,portMAX_DELAY);
+
+
+		}
+
+
+		vTaskDelay(40/portTICK_RATE_MS);
+	}
+}
 
 
 /*=====[Implementaciones de funciones de interrupcion publicas]==============*/
 
 
 /*=====[Implementaciones de funciones privadas]==============================*/
+static char* itoa(int value, char* result, int base) {
+   // check that the base if valid
+   if (base < 2 || base > 36) { *result = '\0'; return result; }
 
+   char* ptr = result, *ptr1 = result, tmp_char;
+   int tmp_value;
+
+   do {
+      tmp_value = value;
+      value /= base;
+      *ptr++ = "zyxwvutsrqponmlkjihgfedcba9876543210123456789abcdefghijklmnopqrstuvwxyz" [35 + (tmp_value - value * base)];
+   } while ( value );
+
+   // Apply negative sign
+   if (tmp_value < 0) *ptr++ = '-';
+   *ptr-- = '\0';
+   while(ptr1 < ptr) {
+      tmp_char = *ptr;
+      *ptr--= *ptr1;
+      *ptr1++ = tmp_char;
+   }
+   return result;
+}
 

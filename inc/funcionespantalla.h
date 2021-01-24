@@ -46,7 +46,7 @@ void ensayolongitudonda(void);
 void seleccionlongonda(char *valorseleccionado);
 void confirmacionensayo(void);
 void confirmacionensayoEblo(void);
-void valorlongondaselecc(char *valorseleccionado);
+void valorlongondaselecc(char *valorseleccionado,char *valoranleido);
 void respsi(void);
 void respno(void);
 /*=====[Prototypes (declarations) of public interrupt functions]=============*/

@@ -151,9 +151,11 @@ void confirmacionensayoEblo(void){
 	TM_ILI9341_Puts(0,160, MSG_PANTALLA7, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_LIGHTCORAL);
 
 }
-void valorlongondaselecc(char *valorseleccionado){
+void valorlongondaselecc(char *valorseleccionado,char*valoranleido){
 	    TM_ILI9341_Puts(0,0, MSG_PANTALLA8, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_COLOR_RED);
 		TM_ILI9341_Puts(110,120, valorseleccionado, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_LIGHTCORAL);
+		TM_ILI9341_Puts(110,150, valoranleido, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_LIGHTCORAL);
+
 }
 
 

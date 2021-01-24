@@ -37,6 +37,8 @@ int sem_queues_init(void)
    sem_inicio=xSemaphoreCreateBinary();
    sem_inicio_barrido=xSemaphoreCreateBinary();
    sem_final_barrido =xSemaphoreCreateBinary();
+   sem_motorposicionadoLOD=xSemaphoreCreateBinary();
+
 
    if((sem_inicio_barrido==NULL)||(sem_final_barrido==NULL)||(sem_inicio==NULL)||
 		   sem_posicioncero==NULL) //Verifico creacion de semaforos binarios
