@@ -90,7 +90,7 @@ int main (void)
 			(const char *)"lectura adc ",  // Nombre de la tarea como String amigable para el usuario
 			configMINIMAL_STACK_SIZE*2,          // Cantidad de stack de la tarea
 			0,                                   // Parametros de tarea
-			tskIDLE_PRIORITY+3,                  // Prioridad de la tarea, le doy mas prioridad
+			tskIDLE_PRIORITY+2,                  // Prioridad de la tarea, le doy mas prioridad
 			0);                                  // Puntero a la tarea creada en el sistema
 
 

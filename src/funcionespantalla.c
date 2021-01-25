@@ -7,7 +7,7 @@
  * Version: 0.0.0
  * Creation Date: YYYY/MM/DD
  */
- 
+
 /*=====[Inclusion of own header]=============================================*/
 
 #include "funcionespantalla.h"
@@ -22,6 +22,7 @@
 #define MSG_PANTALLA7   "NO Presione RETURN"
 #define MSG_PANTALLA8   "El valor de longitud\nde onda posicionado es:"
 #define MSG_PANTALLA9    "Desea realizar el\nensayo barrido\nlongitud de onda ?"
+#define MSG_PANTALLA10   "POSICIONANDO MOTOR\nEspere....."
 /*=====[Implementations of public functions]=================================*/
 
 void InitLcd(void){
@@ -152,9 +153,9 @@ void confirmacionensayoEblo(void){
 
 }
 void valorlongondaselecc(char *valorseleccionado,char*valoranleido){
-	    TM_ILI9341_Puts(0,0, MSG_PANTALLA8, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_COLOR_RED);
-		TM_ILI9341_Puts(110,120, valorseleccionado, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_LIGHTCORAL);
-		TM_ILI9341_Puts(110,150, valoranleido, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_LIGHTCORAL);
+	TM_ILI9341_Puts(0,0, MSG_PANTALLA8, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_COLOR_RED);
+	TM_ILI9341_Puts(110,120, valorseleccionado, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_LIGHTCORAL);
+	TM_ILI9341_Puts(110,150, valoranleido, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_LIGHTCORAL);
 
 }
 
@@ -165,6 +166,11 @@ void respsi(void){
 
 void respno(void){
 	TM_ILI9341_Puts(120,120, MSG_PANTALLA7, &TM_Font_16x26, ILI9341_COLOR_BLACK,ILI9341_COLOR_RED );
+}
+
+void ensayoenproceso(void){
+	TM_ILI9341_Puts(0,0,  MSG_PANTALLA10 , &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_COLOR_RED);
+
 }
 
 

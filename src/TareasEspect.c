@@ -96,7 +96,7 @@ void tarea_general( void* taskParmPtr ){
 
 	while(TRUE) {
 		fsmtareaestadosUpdate();
-		vTaskDelay(40/portTICK_RATE_MS);
+		vTaskDelay(1/portTICK_RATE_MS);
 		}
 }
 
@@ -107,52 +107,36 @@ void tarea_motorstepper( void* taskParmPtr ){
 
 	stepperMotorL297Init(&steppermotor,48,GPIO4,GPIO7,GPIO8,GPIO5);
 	stepperMotorL297SetVelocidad(&steppermotor,velocidad_media);
-
-
-
 	while(TRUE) {
-
-
 		if(xQueueReceive(valorLOselec_queue, &aux, portMAX_DELAY)){
 			stepperMotorL297MoveXNanometers(&steppermotor,aux);
 			//semaforo que avisa que el motor ya se posiciono en la longitud
 			//de onda
 			xSemaphoreGive( sem_motorposicionadoLOD );
-
-
 		}
-
-
 		vTaskDelay(40/portTICK_RATE_MS);
 		}
 }
 
 void tarea_lecturaADC( void* taskParmPtr ){
 	tTecla* config = (tTecla*) taskParmPtr;
-
-
-	static volatile char Buff[10];
+    static volatile uint16_t mediciones[1000]={0};
+	static char Buff[10]={0};
 	static volatile uint16_t muestra = 0;
 	uint32_t aux=0;
     adcConfig( ADC_ENABLE ); /* Inicializo ADC */
-
-
-
+    uint8_t i=0;
 	while(TRUE) {
 
 		if(xSemaphoreTake( sem_motorposicionadoLOD,portMAX_DELAY)){
-		muestra = adcRead( CH1 ); //Leo valor de la muestra tomado
-
-		itoa( muestra,Buff,10 ); /* 10 significa decimal */
-
-		//mando por una cola el valor leido del conversor ADC
-		xQueueSend(valorAnLeido,&Buff,portMAX_DELAY);
-
-
+			muestra = adcRead( CH1 ); //Leo valor de la muestra tomado
+            mediciones[i]=muestra;
+	        i++;
+			itoa( muestra,Buff,10 ); /* 10 significa decimal */
+			//mando por una cola el valor leido del conversor ADC
+			xQueueSend(valorAnLeido,&Buff,portMAX_DELAY);
 		}
-
-
-		vTaskDelay(40/portTICK_RATE_MS);
+		vTaskDelay(100/portTICK_RATE_MS);
 	}
 }
 

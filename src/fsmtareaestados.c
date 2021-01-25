@@ -224,6 +224,7 @@ void fsmtareaestadosUpdate( void ){
 				confirmacionensayo();
 				if(xSemaphoreTake(tecla_config[2].sem_tec_pulsada ,0)){
 					ensayoselod =ENSAYO_ELOD_PROCESO;
+					cambiofondo(ILI9341_LIGHTCORAL);
 				}
 				if (xSemaphoreTake(tecla_config[3].sem_tec_pulsada ,0)){
 					ensayoselod =ENSAYO_ELOD_INICIAL;
@@ -231,11 +232,15 @@ void fsmtareaestadosUpdate( void ){
 				}
 				break;
 			case ENSAYO_ELOD_PROCESO:
+
+				ensayoenproceso();
+
 				xQueueSend(valorLOselec_queue, &longitudonda, portMAX_DELAY);
 				//Aqui tendria que ver la forma de implementar la muestra del valor de longitud
 				//de onda seleccionado y el valor medido del conversor analogico}
 				//tambien el envio del valor por el puerto serie
 				//Por ahora solo lo envio al estado inicial
+
 				ensayoselod =ENSAYO_ELOD_MUESTRAVALOR;
 				cambiofondo(ILI9341_LIGHTCORAL);
 				break;
@@ -243,16 +248,9 @@ void fsmtareaestadosUpdate( void ){
 			case ENSAYO_ELOD_MUESTRAVALOR:
 				//muestro el valor de la medicion realizada, en Volts
 				//Recibo de la cola el valor analogico leido
-
 				xQueueReceive(valorAnLeido, &valorAnleido, 1);
-
-
 				//Muestro valor de longitud de onda posicionado
 				valorlongondaselecc(texto,valorAnleido);
-
-
-
-
 				break;
 
 

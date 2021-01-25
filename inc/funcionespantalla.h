@@ -49,6 +49,7 @@ void confirmacionensayoEblo(void);
 void valorlongondaselecc(char *valorseleccionado,char *valoranleido);
 void respsi(void);
 void respno(void);
+void ensayoenproceso(void);
 /*=====[Prototypes (declarations) of public interrupt functions]=============*/
 
 /*=====[C++ - end]===========================================================*/
