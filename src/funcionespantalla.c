@@ -23,6 +23,8 @@
 #define MSG_PANTALLA8   "El valor de longitud\nde onda posicionado es:"
 #define MSG_PANTALLA9    "Desea realizar el\nensayo barrido\nlongitud de onda ?"
 #define MSG_PANTALLA10   "POSICIONANDO MOTOR\nEspere....."
+#define MSG_PANTALLA11   "Realizando ensayo\nlongitud de onda\nEspere....."
+
 /*=====[Implementations of public functions]=================================*/
 
 void InitLcd(void){
@@ -172,6 +174,12 @@ void ensayoenproceso(void){
 	TM_ILI9341_Puts(0,0,  MSG_PANTALLA10 , &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_COLOR_RED);
 
 }
+
+void ensayoenproceso_2(void){
+	TM_ILI9341_Puts(0,0,  MSG_PANTALLA11 , &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_COLOR_RED);
+
+}
+
 
 
 /*=====[Inclusions of private function dependencies]=========================*/

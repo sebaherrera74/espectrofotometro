@@ -27,6 +27,9 @@
 
 /*=====[Macros de definicion de constantes privadas]=========================*/
 
+
+
+
 /*=====[Macros estilo funcion privadas]======================================*/
 
 
@@ -123,8 +126,8 @@ void fsmtareaestadosInit( void )
 // FSM Update Sate Function
 void fsmtareaestadosUpdate( void ){
 
-	uint32_t valor_maximo=100;//pongo un valor chico para probar
-	uint32_t valor_minimo=0;//pongo un valor chico para probar
+	uint32_t valor_maximo=VALOR_MAXIMO_LO_PRUEBA;//pongo un valor chico para probar
+	uint32_t valor_minimo= VALOR_MIN_LO ;  //pongo un valor chico para probar
 
 	switch( fsmState ){
 
@@ -297,6 +300,7 @@ void fsmtareaestadosUpdate( void ){
 							confirmacionensayoEblo();
 							if(xSemaphoreTake(tecla_config[2].sem_tec_pulsada ,0)){
 								ensayoeblo =ENSAYO_EBLO_PROCESO;
+								cambiofondo(ILI9341_LIGHTCORAL);
 							}
 							if (xSemaphoreTake(tecla_config[3].sem_tec_pulsada ,0)){
 								ensayoeblo =ENSAYO_EBLO_FINAL;
@@ -307,8 +311,10 @@ void fsmtareaestadosUpdate( void ){
 						case ENSAYO_EBLO_PROCESO:
 							//disparo la tarea de motor
 
-							xQueueSend(valorLOselec_queue, &valor_maximo, 1);  //Aqui mando el barrido, con el valor maximo
-							longitudonda=valor_maximo; //Esto asigno porque aqui quedaria la longitud de onda
+							ensayoenproceso_2();
+
+							xQueueSend(valormaximoLO_queue, &valor_maximo, 1);  //Aqui mando el barrido, con el valor maximo
+							//longitudonda=valor_maximo;                          //Esto asigno porque aqui quedaria la longitud de onda
 
 							ensayoeblo =ENSAYO_EBLO_FINAL;
 
@@ -324,8 +330,8 @@ void fsmtareaestadosUpdate( void ){
 							//cambio variable global a cero
 							//
 
-							xQueueSend(valorLOselec_queue, &valor_minimo, 20); //vuelvo a posicion cero el motor
-							longitudonda=valor_minimo; //Esto asigno porque aqui quedaria la longitud de onda
+							//xQueueSend(valorLOselec_queue, &valor_minimo, 20); //vuelvo a posicion cero el motor
+							//longitudonda=valor_minimo; //Esto asigno porque aqui quedaria la longitud de onda
 							fsmState=ESTADO_MENU_ENSAYOS;
 							tipoensayo=ENSAYOS;
 							break;

@@ -87,10 +87,10 @@ int main (void)
 
 
 	BaseType_t res4 =xTaskCreate(tarea_barridoLO,     // Funcion de la tarea a ejecutar
-				(const char *)"tarea barrido LO ",  // Nombre de la tarea como String amigable para el usuario
+				(const char *)"tarea barrido LO",  // Nombre de la tarea como String amigable para el usuario
 				configMINIMAL_STACK_SIZE*2,          // Cantidad de stack de la tarea
 				0,                                   // Parametros de tarea
-				tskIDLE_PRIORITY+2,                  // Prioridad de la tarea, le doy mas prioridad
+				tskIDLE_PRIORITY+3,                  // Prioridad de la tarea, le doy mas prioridad
 				0);                                  // Puntero a la tarea creada en el sistema
 
 

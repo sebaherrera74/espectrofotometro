@@ -24,6 +24,7 @@ SemaphoreHandle_t mutex_impresion_1;
 
 QueueHandle_t valorLO_queue;
 QueueHandle_t valorLOselec_queue;
+QueueHandle_t valormaximoLO_queue;
 QueueHandle_t valorAnLeido;       //Valor analogico leido
 QueueHandle_t txQueue;
 

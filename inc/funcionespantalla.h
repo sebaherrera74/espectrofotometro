@@ -50,6 +50,7 @@ void valorlongondaselecc(char *valorseleccionado,char *valoranleido);
 void respsi(void);
 void respno(void);
 void ensayoenproceso(void);
+void ensayoenproceso_2(void);
 /*=====[Prototypes (declarations) of public interrupt functions]=============*/
 
 /*=====[C++ - end]===========================================================*/
