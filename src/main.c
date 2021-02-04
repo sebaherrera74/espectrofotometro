@@ -49,7 +49,7 @@ int main (void)
 	boardInit();
 	i2cInit( I2C0, 100000 );
 	uartConfig( UART_USB, 115200 );
-	uartWriteString( UART_USB,"Driver de Espectrofotometro \r\n" );
+	//uartWriteString( UART_USB,"Driver de Espectrofotometro \r\n" );
 	teclas_config();
 	//Aqui tendria que ir el chequeo de la posicion cero del motor
 
@@ -86,12 +86,21 @@ int main (void)
 			0);                                  // Puntero a la tarea creada en el sistema
 
 
-	BaseType_t res4 =xTaskCreate(tarea_lecturaADC,     // Funcion de la tarea a ejecutar
+	BaseType_t res4 =xTaskCreate(tarea_barridoLO,     // Funcion de la tarea a ejecutar
+				(const char *)"tarea barrido LO ",  // Nombre de la tarea como String amigable para el usuario
+				configMINIMAL_STACK_SIZE*2,          // Cantidad de stack de la tarea
+				0,                                   // Parametros de tarea
+				tskIDLE_PRIORITY+2,                  // Prioridad de la tarea, le doy mas prioridad
+				0);                                  // Puntero a la tarea creada en el sistema
+
+
+
+	/*BaseType_t res4 =xTaskCreate(tarea_lecturaADC,     // Funcion de la tarea a ejecutar
 			(const char *)"lectura adc ",  // Nombre de la tarea como String amigable para el usuario
 			configMINIMAL_STACK_SIZE*2,          // Cantidad de stack de la tarea
 			0,                                   // Parametros de tarea
 			tskIDLE_PRIORITY+2,                  // Prioridad de la tarea, le doy mas prioridad
-			0);                                  // Puntero a la tarea creada en el sistema
+			0);                                  // Puntero a la tarea creada en el sistema*/
 
 
 

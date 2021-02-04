@@ -96,43 +96,76 @@ void tarea_general( void* taskParmPtr ){
 
 	while(TRUE) {
 		fsmtareaestadosUpdate();
-		vTaskDelay(1/portTICK_RATE_MS);
+		vTaskDelay(100/portTICK_RATE_MS);
 		}
 }
-
+//Tarea va ser para el ensayo de longitud d eonda determinada
 void tarea_motorstepper( void* taskParmPtr ){
 	tTecla* config = (tTecla*) taskParmPtr;
-
+	static volatile uint16_t muestra = 0;
+	static char Buff[10];
 	uint32_t aux=0;
 
 	stepperMotorL297Init(&steppermotor,48,GPIO4,GPIO7,GPIO8,GPIO5);
 	stepperMotorL297SetVelocidad(&steppermotor,velocidad_media);
+	 adcConfig( ADC_ENABLE ); /* Inicializo ADC */
+
 	while(TRUE) {
 		if(xQueueReceive(valorLOselec_queue, &aux, portMAX_DELAY)){
 			stepperMotorL297MoveXNanometers(&steppermotor,aux);
-			//semaforo que avisa que el motor ya se posiciono en la longitud
-			//de onda
-			xSemaphoreGive( sem_motorposicionadoLOD );
+			//Una vez que el motor se posiciona, tomo la lectura del valor analogico
+
+			muestra = adcRead( CH1 ); //Leo valor de la muestra tomado
+			itoa( muestra,Buff,10 ); /* 10 significa decimal */
+			//mando por una cola el valor leido del conversor ADC
+			xQueueSend(valorAnLeido,&Buff,portMAX_DELAY);
+
+			//xSemaphoreGive( sem_motorposicionadoLOD ); por ahora no me hace falta
 		}
 		vTaskDelay(40/portTICK_RATE_MS);
 		}
 }
 
+
+void tarea_barridoLO( void* taskParmPtr ){
+
+
+
+}
+
+
+
 void tarea_lecturaADC( void* taskParmPtr ){
 	tTecla* config = (tTecla*) taskParmPtr;
     static volatile uint16_t mediciones[1000]={0};
-	static char Buff[10]={0};
+	static char Buff[10];
+	static char Buff_serial[10];
+	static char Buferprueba[10]={0,0,0,3,2,1,2,3,4};
 	static volatile uint16_t muestra = 0;
 	uint32_t aux=0;
     adcConfig( ADC_ENABLE ); /* Inicializo ADC */
     uint8_t i=0;
 	while(TRUE) {
 
-		if(xSemaphoreTake( sem_motorposicionadoLOD,portMAX_DELAY)){
+
+if(xSemaphoreTake( sem_motorposicionadoLOD,portMAX_DELAY)){
 			muestra = adcRead( CH1 ); //Leo valor de la muestra tomado
-            mediciones[i]=muestra;
-	        i++;
+           // mediciones[i]=muestra;
+
 			itoa( muestra,Buff,10 ); /* 10 significa decimal */
+		    //envio por puerto serial el valor medido
+			//ver de implementar como enviar tambien el vlor de longitud de onda posicionado
+
+			for(i=0;i<10;i++){
+
+				Buff_serial[i]=Buff[i]+Buferprueba[i];
+
+			}
+
+
+			uartWriteString( UART_USB,Buff );
+			uartWriteString( UART_USB, "\n" );
+
 			//mando por una cola el valor leido del conversor ADC
 			xQueueSend(valorAnLeido,&Buff,portMAX_DELAY);
 		}
