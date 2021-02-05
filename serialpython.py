@@ -40,7 +40,7 @@ def Update():
     lastY = lastY + 1
 
     # Limitamos a mostrar solo 300 muestras
-    if len(dataX) > 300:
+    if len(dataX) > 1050:
       dataX = dataX[:-1]
       dataY = dataY[:-1]
 
@@ -52,12 +52,12 @@ def Update():
 while True: 
   Update() #Actualizamos todo lo rápido que podamos.
 
-"""## Start Qt event loop unless running in interactive mode or using pyside.
+## Start Qt event loop unless running in interactive mode or using pyside.
 if __name__ == '__main__':
   import sys
   if (sys.flags.interactive != 1) or not hasattr(QtCore, 'PYQT_VERSION'):
     QtGui.QApplication.instance().exec_()
-#pg.QtGui.QApplication.exec_()"""
+#pg.QtGui.QApplication.exec_()
 
 
 

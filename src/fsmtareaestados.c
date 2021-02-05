@@ -114,12 +114,10 @@ void fsmtareaestadosError( void )
 // FSM Initialize Function
 void fsmtareaestadosInit( void )
 {
-
 	InitLcd();	                //inicilizo el display Ili9341
 	RotarPantalla();            //Roto pantalla a horizontal
 	barraColores();
 	swichtIrq_init(&swichtIrq,GPIO6); //inicializo el swicht conectado el na a GPIO06
-
 	fsmState = ESTADO_INICIAL;   // Set initial state
 }
 
@@ -135,12 +133,12 @@ void fsmtareaestadosUpdate( void ){
 		posicioncero();
 
 		while(!swichtIrqEstado(&swichtIrq)){			//veo la posicion del swicht sino esta en cero giro el motor
-        /* que conviene aqui llamar directamente a la funcion de girra el motor
-         * de la libreria de sttepermotor.h o un semaforo que vaya a la tarea?
-         */
+			/* que conviene aqui llamar directamente a la funcion de girra el motor
+			 * de la libreria de sttepermotor.h o un semaforo que vaya a la tarea?
+			 */
 
 			// xSemaphoreGive(sem_posicioncero);No conviene ponerlo en la tarea
-			 stepperMotorL297Move1nanometerCCW(&steppermotor);
+			stepperMotorL297Move1nanometerCCW(&steppermotor);
 
 		}
 		cambiofondo(ILI9341_LIGHTCORAL);
@@ -150,8 +148,6 @@ void fsmtareaestadosUpdate( void ){
 		break;
 
 	case ESTADO_MENU_ENSAYOS:
-
-
 		if(xSemaphoreTake(tecla_config[0].sem_tec_pulsada ,0)){
 			tipoensayo=ENSAYO_ELOD;
 		}
@@ -160,37 +156,32 @@ void fsmtareaestadosUpdate( void ){
 		}
 
 		switch( tipoensayo ){
-		case ENSAYOS:
-
+			case ENSAYOS:
 			tipoensayos();
 			break;
-		case ENSAYO_ELOD:
+		    case ENSAYO_ELOD:
 			ensayolongitudonda();
 			if(xSemaphoreTake(tecla_config[2].sem_tec_pulsada ,0)){
 				fsmState=ESTADO_ELOD;
 				ensayoselod=ENSAYO_ELOD_INICIAL;
 				cambiofondo(ILI9341_LIGHTCORAL);
-
-
-			}
+				}
 			break;
-		case ENSAYO_EBLO:
+		    case ENSAYO_EBLO:
 			ensayobarrido();
 			if(xSemaphoreTake(tecla_config[2].sem_tec_pulsada ,0)){
 				fsmState=ESTADO_EBLO;
 				ensayoeblo=ENSAYO_EBLO_INICIAL;
-			}
+				}
 			break;
-		default:
+		    default:
 			tipoensayos();
 			break;
 		}
-
 		if(xSemaphoreTake(tecla_config[3].sem_tec_pulsada ,0)){  //si presiono tecla 4 return vuelvo al inicio
 			fsmState=ESTADO_MENU_ENSAYOS;
 			//tipoensayo=ENSAYOS;
 		}
-
 		break;
 
 		case ESTADO_ELOD:
@@ -235,136 +226,112 @@ void fsmtareaestadosUpdate( void ){
 				}
 				break;
 			case ENSAYO_ELOD_PROCESO:
-
 				ensayoenproceso();
-
 				xQueueSend(valorLOselec_queue, &longitudonda, portMAX_DELAY);
 				//Aqui tendria que ver la forma de implementar la muestra del valor de longitud
 				//de onda seleccionado y el valor medido del conversor analogico}
 				//tambien el envio del valor por el puerto serie
 				//Por ahora solo lo envio al estado inicial
-
 				ensayoselod =ENSAYO_ELOD_MUESTRAVALOR;
 				cambiofondo(ILI9341_LIGHTCORAL);
 				break;
-
 			case ENSAYO_ELOD_MUESTRAVALOR:
 				//muestro el valor de la medicion realizada, en Volts
 				//Recibo de la cola el valor analogico leido
 				xQueueReceive(valorAnLeido, &valorAnleido, 1);
 				//Muestro valor de longitud de onda posicionado
 				valorlongondaselecc(texto,valorAnleido);
-				break;
-
-
+			break;
 			default:
-
-				break;
+			break;
 			}
 
 			if(xSemaphoreTake(tecla_config[3].sem_tec_pulsada ,0)){  //si presiono tecla 4 return vuelvo al inicio
 				cambiofondo(ILI9341_LIGHTCORAL);
 				fsmState=ESTADO_FINAL;
-
 			}
 			break;
 
-		case ESTADO_EBLO:
-			/*tengo que chequear la posicion del motor, porque puedo haber estado haciendo
-			 * otro ensayo y el motor no quedo en la posicion cero
-			 *Una vez que el motor llegue a cero comenzar el ensayo desde cero a 1050 nanometros
-		 */
-  		switch( ensayoeblo ){
-						case ENSAYO_EBLO_INICIAL:
-							/*AQUI CHEQUEO POSICIONCERO SI PASA VOY A CONFIRMACION
-							 * porque puede haber estado haciendo otro ensayo y no me quedo en cero
-							 * 							 */
+			case ESTADO_EBLO:
+				/*tengo que chequear la posicion del motor, porque puedo haber estado haciendo
+				 * otro ensayo y el motor no quedo en la posicion cero
+				 *Una vez que el motor llegue a cero comenzar el ensayo desde cero a 1050 nanometros
+				 */
+				switch( ensayoeblo ){
+				case ENSAYO_EBLO_INICIAL:
+					/*AQUI CHEQUEO POSICIONCERO SI PASA VOY A CONFIRMACION
+					 * porque puede haber estado haciendo otro ensayo y no me quedo en cero
+					 * 							 */
 
-							if(longitudonda|=0){
-								cambiofondo(ILI9341_LIGHTCORAL);
-								posicioncero();
-								xQueueSend(valorLOselec_queue, &valor_minimo, 20);
-								longitudonda=valor_minimo;
-							}
-							ensayoeblo=ENSAYO_EBLO_CONFIRMACION;
-							cambiofondo(ILI9341_LIGHTCORAL);
-							break;
-						case ENSAYO_EBLO_CONFIRMACION:
+					if(longitudonda|=0){
+						cambiofondo(ILI9341_LIGHTCORAL);
+						posicioncero();
+						xQueueSend(valorLOselec_queue, &valor_minimo, 20);
+						longitudonda=valor_minimo;
+					}
+					ensayoeblo=ENSAYO_EBLO_CONFIRMACION;
+					cambiofondo(ILI9341_LIGHTCORAL);
+					break;
+				case ENSAYO_EBLO_CONFIRMACION:
 
-							//poner mensajes en diaplay de confirmacion o salida
+					//poner mensajes en diaplay de confirmacion o salida
 
-							confirmacionensayoEblo();
-							if(xSemaphoreTake(tecla_config[2].sem_tec_pulsada ,0)){
-								ensayoeblo =ENSAYO_EBLO_PROCESO;
-								cambiofondo(ILI9341_LIGHTCORAL);
-							}
-							if (xSemaphoreTake(tecla_config[3].sem_tec_pulsada ,0)){
-								ensayoeblo =ENSAYO_EBLO_FINAL;
-								cambiofondo(ILI9341_LIGHTCORAL);
-							}
-							break;
+					confirmacionensayoEblo();
+					if(xSemaphoreTake(tecla_config[2].sem_tec_pulsada ,0)){
+						ensayoeblo =ENSAYO_EBLO_PROCESO;
+						cambiofondo(ILI9341_LIGHTCORAL);
+					}
+					if (xSemaphoreTake(tecla_config[3].sem_tec_pulsada ,0)){
+						ensayoeblo =ENSAYO_EBLO_FINAL;
+						cambiofondo(ILI9341_LIGHTCORAL);
+					}
+					break;
 
-						case ENSAYO_EBLO_PROCESO:
-							ensayoenproceso_2();
-							xQueueSend(valormaximoLO_queue, &valor_maximo, portMAX_DELAY);  //Aqui mando el barrido, con el valor maximo
+				case ENSAYO_EBLO_PROCESO:
+					ensayoenproceso_2();
+					xQueueSend(valormaximoLO_queue, &valor_maximo, portMAX_DELAY);  //Aqui mando el barrido, con el valor maximo
 
-							if (xSemaphoreTake(sem_final_barrido,portMAX_DELAY)){
-								ensayoeblo =ENSAYO_EBLO_FINAL;
-			                  }
-							//Podria poner algun mensaje para avisar que el motor
-							//termino el barrido y esta volviendo a cero
-							cambiofondo(ILI9341_LIGHTCORAL);
+					if (xSemaphoreTake(sem_final_barrido,portMAX_DELAY)){
+						ensayoeblo =ENSAYO_EBLO_FINAL;
+					}
+					//Podria poner algun mensaje para avisar que el motor
+					//termino el barrido y esta volviendo a cero
+					cambiofondo(ILI9341_LIGHTCORAL);
 
-					   case ENSAYO_EBLO_FINAL:
-							//vuelvo a colocar el motor en posicion cero
-							//cambio variable global a cero
-							//
+				case ENSAYO_EBLO_FINAL:
+					//vuelvo a colocar el motor en posicion cero
+					//cambio variable global a cero
+					//
 
-							//xQueueSend(valorLOselec_queue, &valor_minimo, 20); //vuelvo a posicion cero el motor
-							//longitudonda=valor_minimo; //Esto asigno porque aqui quedaria la longitud de onda
-							fsmState=ESTADO_MENU_ENSAYOS;
-							tipoensayo=ENSAYOS;
-						break;
+					//xQueueSend(valorLOselec_queue, &valor_minimo, 20); //vuelvo a posicion cero el motor
+					//longitudonda=valor_minimo; //Esto asigno porque aqui quedaria la longitud de onda
+					fsmState=ESTADO_MENU_ENSAYOS;
+					tipoensayo=ENSAYOS;
+					break;
 
-						default:
+				default:
 
-						break;
-						}
-                     break;
-
-
-
-
-			/*while(!swichtIrqEstado(&swichtIrq)){			//veo la posicion del swicht sino esta en cero giro el motor
-			        /* que conviene aqui llamar directamente a la funcion de girra el motor
-			         * de la libreria de sttepermotor.h o un semaforo que vaya a la tarea?
-			         */
-
-						// xSemaphoreGive(sem_posicioncero);No conviene ponerlo en la tarea
-					//	 stepperMotorL297Move1nanometerCCW(&steppermotor);
-
-
-
-
-
-		case ESTADO_FINAL:
-			fsmState=ESTADO_MENU_ENSAYOS;
-			tipoensayo=ENSAYOS;
-
-
-
-				/* UPDATE OUTPUTS */
-				// Code for update outputs...
-
-				/* CHECK TRANSITION CONDITIONS */
-				// Code for check transitions (some ifs)...
-
+					break;
+				}
 				break;
+    			/*while(!swichtIrqEstado(&swichtIrq)){			//veo la posicion del swicht sino esta en cero giro el motor
+			        /* que conviene aqui llamar directamente a la funcion de girra el motor
+				 * de la libreria de sttepermotor.h o un semaforo que vaya a la tarea?
+				 */
 
+				// xSemaphoreGive(sem_posicioncero);No conviene ponerlo en la tarea
+				//	 stepperMotorL297Move1nanometerCCW(&steppermotor);
+				case ESTADO_FINAL:
+					fsmState=ESTADO_MENU_ENSAYOS;
+					tipoensayo=ENSAYOS;
+					/* UPDATE OUTPUTS */
+					// Code for update outputs...
 
-
-			default:
-				fsmtareaestadosError();
+					/* CHECK TRANSITION CONDITIONS */
+					// Code for check transitions (some ifs)...
+				break;
+				default:
+					fsmtareaestadosError();
 				break;
 	}
 }

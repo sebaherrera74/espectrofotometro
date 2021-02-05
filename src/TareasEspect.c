@@ -18,40 +18,30 @@
 #include "sem_queues_espect.h"
 /*=====[Inclusiones de dependencias de funciones privadas]===================*/
 
-
-
-
 /*=====[Macros de definicion de constantes privadas]=========================*/
-
+#define TIEMPO_ESPERA    2000
 
 /*=====[Macros estilo funcion privadas]======================================*/
-
 
 /*=====[Definiciones de tipos de datos privados]=============================*/
 
 // Tipo de datos que renombra un tipo basico
 
-
 // Tipo de datos de puntero a funcion
 
-
 // Tipo de datos enumerado
-
 
 // Tipo de datos estructua, union o campo de bits
 
 /*=====[Definiciones de Variables globales publicas externas]================*/
 
-
 /*=====[Definiciones de Variables globales publicas]=========================*/
-
 
 /*=====[Definiciones de Variables globales privadas]=========================*/
 
-
 /*=====[Prototipos de funciones privadas]====================================*/
 static char* itoa(int value, char* result, int base);
-
+static void posicionoCeroMotor(uint32_t valorLOmaximo,uint16_t variableaux);
 
 /*=====[Implementaciones de funciones publicas]==============================*/
 
@@ -71,8 +61,6 @@ void tarea_teclas( void* taskParmPtr ){
 	for (i = 0; i < 4; i++){
 		mefbotonInit(&config[i]);
 	}
-
-
 	portTickType xPeriodicity =  10/ portTICK_RATE_MS;
 	portTickType xLastWakeTime = xTaskGetTickCount();
 
@@ -81,13 +69,10 @@ void tarea_teclas( void* taskParmPtr ){
 		for (i = 0; i < 4; i++){
 			actualizacionTecla(&config[i]);  //update de tareas teclas 1 ,2
 		}
-
 		vTaskDelay(25/portTICK_RATE_MS);
 		//vTaskDelayUntil( &xLastWakeTime, xPeriodicity );
 	}
 }
-
-
 
 void tarea_general( void* taskParmPtr ){
 	tTecla* config = (tTecla*) taskParmPtr;
@@ -126,12 +111,12 @@ void tarea_motorstepper( void* taskParmPtr ){
 	}
 }
 
-
+//Tarea para el ensayo de barrido longitud de onda
 void tarea_barridoLO( void* taskParmPtr ){
 	tTecla* config = (tTecla*) taskParmPtr;
 	static volatile uint16_t lectura = 0;
 	static volatile uint16_t cantidadmuestras = 0;
-	static volatile uint16_t mediciones[400]={0}; //Ojo aqui al poner el valor porque tilda el programa
+	static volatile uint16_t mediciones[VALOR_MAXIMO_LO_PRUEBA]={0}; //Ojo aqui al poner el valor porque tilda el programa
 
 	static char Buff[10];
 	uint32_t aux=0;           //Valor que va ha recibir el valor de longitud maxima
@@ -141,31 +126,23 @@ void tarea_barridoLO( void* taskParmPtr ){
 		if(xQueueReceive(valormaximoLO_queue, &aux, portMAX_DELAY)){
 
 			while(aux>cantidadmuestras){
-
-			stepperMotorL297Move1nanometerCW(&steppermotor);
-
-			lectura = adcRead( CH1 ); //Leo valor de la muestra tomado
-			itoa(lectura,Buff,10 ); /* 10 significa decimal */
-
-			//Tomo las muestras para cada longitud de onda
-			mediciones[cantidadmuestras]=lectura;
-            cantidadmuestras++;
-
-            uartWriteString( UART_USB,Buff );
-        	uartWriteString( UART_USB, "\n" );
-		    }
-			cantidadmuestras=0;
-			//Vuelvo a cero el motor
-
-			while(aux>cantidadmuestras){
-				stepperMotorL297Move1nanometerCCW(&steppermotor);
+				stepperMotorL297Move1nanometerCW(&steppermotor);
+				lectura = adcRead( CH1 ); //Leo valor de la muestra tomado
+				itoa(lectura,Buff,10 ); /* 10 significa decimal */
+				//Tomo las muestras para cada longitud de onda
+				mediciones[cantidadmuestras]=lectura;
 				cantidadmuestras++;
+				//Envio los valores medidos en formato string al puerto serie
+				uartWriteString( UART_USB,Buff );
+				uartWriteString( UART_USB, "\n" );
 			}
 			cantidadmuestras=0;
 
+			vTaskDelay(TIEMPO_ESPERA/portTICK_RATE_MS);    //Espera un momento
+			//Vuelvo a cero el motor
+			posicionoCeroMotor(aux,cantidadmuestras);
+			//semaforo binario que me avisa el fin del ensayo barrido
 			xSemaphoreGive( sem_final_barrido );
-
-
 		}
 		vTaskDelay(1000/portTICK_RATE_MS);
 	}
@@ -179,6 +156,15 @@ void tarea_barridoLO( void* taskParmPtr ){
 
 
 /*=====[Implementaciones de funciones privadas]==============================*/
+
+static void posicionoCeroMotor(uint32_t valorLOmaximo,uint16_t variableaux){
+	while(valorLOmaximo>variableaux){
+		stepperMotorL297Move1nanometerCCW(&steppermotor);
+		variableaux++;
+		}
+	variableaux=0;
+}
+
 static char* itoa(int value, char* result, int base) {
 	// check that the base if valid
 	if (base < 2 || base > 36) { *result = '\0'; return result; }
