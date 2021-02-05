@@ -380,8 +380,6 @@ void stepperMotorL297Move1nanometerCW(steppermotor_l297_t *steppermotor){
 				}
 				stepperMotorL297SetEnable(steppermotor,motor_disable);
 				signalStop();
-
-
 }
 
 //Muevo un nanometro en sentido de las agujas del reloj

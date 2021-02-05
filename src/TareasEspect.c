@@ -82,7 +82,7 @@ void tarea_teclas( void* taskParmPtr ){
 			actualizacionTecla(&config[i]);  //update de tareas teclas 1 ,2
 		}
 
-		vTaskDelay(1/portTICK_RATE_MS);
+		vTaskDelay(25/portTICK_RATE_MS);
 		//vTaskDelayUntil( &xLastWakeTime, xPeriodicity );
 	}
 }
@@ -131,12 +131,13 @@ void tarea_barridoLO( void* taskParmPtr ){
 	tTecla* config = (tTecla*) taskParmPtr;
 	static volatile uint16_t lectura = 0;
 	static volatile uint16_t cantidadmuestras = 0;
-	static volatile uint16_t mediciones[100]={0};
+	static volatile uint16_t mediciones[400]={0}; //Ojo aqui al poner el valor porque tilda el programa
 
 	static char Buff[10];
-	uint32_t aux=0;
+	uint32_t aux=0;           //Valor que va ha recibir el valor de longitud maxima
 
 	while(TRUE) {
+
 		if(xQueueReceive(valormaximoLO_queue, &aux, portMAX_DELAY)){
 
 			while(aux>cantidadmuestras){
@@ -152,11 +153,8 @@ void tarea_barridoLO( void* taskParmPtr ){
 
             uartWriteString( UART_USB,Buff );
         	uartWriteString( UART_USB, "\n" );
-
-
 		    }
 			cantidadmuestras=0;
-
 			//Vuelvo a cero el motor
 
 			while(aux>cantidadmuestras){
@@ -165,53 +163,16 @@ void tarea_barridoLO( void* taskParmPtr ){
 			}
 			cantidadmuestras=0;
 
+			xSemaphoreGive( sem_final_barrido );
+
 
 		}
-		vTaskDelay(40/portTICK_RATE_MS);
-	}
-
-
-}
-
-
-
-void tarea_lecturaADC( void* taskParmPtr ){
-	tTecla* config = (tTecla*) taskParmPtr;
-	static volatile uint16_t mediciones[1000]={0};
-	static char Buff[10];
-	static char Buff_serial[10];
-	static char Buferprueba[10]={0,0,0,3,2,1,2,3,4};
-	static volatile uint16_t muestra = 0;
-	uint32_t aux=0;
-	adcConfig( ADC_ENABLE ); /* Inicializo ADC */
-	uint8_t i=0;
-	while(TRUE) {
-
-
-		if(xSemaphoreTake( sem_motorposicionadoLOD,portMAX_DELAY)){
-			muestra = adcRead( CH1 ); //Leo valor de la muestra tomado
-			// mediciones[i]=muestra;
-
-			itoa( muestra,Buff,10 ); /* 10 significa decimal */
-			//envio por puerto serial el valor medido
-			//ver de implementar como enviar tambien el vlor de longitud de onda posicionado
-
-			for(i=0;i<10;i++){
-
-				Buff_serial[i]=Buff[i]+Buferprueba[i];
-
-			}
-
-
-			uartWriteString( UART_USB,Buff );
-			uartWriteString( UART_USB, "\n" );
-
-			//mando por una cola el valor leido del conversor ADC
-			xQueueSend(valorAnLeido,&Buff,portMAX_DELAY);
-		}
-		vTaskDelay(100/portTICK_RATE_MS);
+		vTaskDelay(1000/portTICK_RATE_MS);
 	}
 }
+
+
+
 
 
 /*=====[Implementaciones de funciones de interrupcion publicas]==============*/

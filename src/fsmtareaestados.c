@@ -270,15 +270,11 @@ void fsmtareaestadosUpdate( void ){
 			break;
 
 		case ESTADO_EBLO:
-
-
 			/*tengo que chequear la posicion del motor, porque puedo haber estado haciendo
 			 * otro ensayo y el motor no quedo en la posicion cero
 			 *Una vez que el motor llegue a cero comenzar el ensayo desde cero a 1050 nanometros
-			 */
-
-
-			switch( ensayoeblo ){
+		 */
+  		switch( ensayoeblo ){
 						case ENSAYO_EBLO_INICIAL:
 							/*AQUI CHEQUEO POSICIONCERO SI PASA VOY A CONFIRMACION
 							 * porque puede haber estado haciendo otro ensayo y no me quedo en cero
@@ -309,23 +305,17 @@ void fsmtareaestadosUpdate( void ){
 							break;
 
 						case ENSAYO_EBLO_PROCESO:
-							//disparo la tarea de motor
-
 							ensayoenproceso_2();
+							xQueueSend(valormaximoLO_queue, &valor_maximo, portMAX_DELAY);  //Aqui mando el barrido, con el valor maximo
 
-							xQueueSend(valormaximoLO_queue, &valor_maximo, 1);  //Aqui mando el barrido, con el valor maximo
-							//longitudonda=valor_maximo;                          //Esto asigno porque aqui quedaria la longitud de onda
-
-							ensayoeblo =ENSAYO_EBLO_FINAL;
-
+							if (xSemaphoreTake(sem_final_barrido,portMAX_DELAY)){
+								ensayoeblo =ENSAYO_EBLO_FINAL;
+			                  }
 							//Podria poner algun mensaje para avisar que el motor
 							//termino el barrido y esta volviendo a cero
-
 							cambiofondo(ILI9341_LIGHTCORAL);
 
-							break;
-
-						case ENSAYO_EBLO_FINAL:
+					   case ENSAYO_EBLO_FINAL:
 							//vuelvo a colocar el motor en posicion cero
 							//cambio variable global a cero
 							//
@@ -334,11 +324,11 @@ void fsmtareaestadosUpdate( void ){
 							//longitudonda=valor_minimo; //Esto asigno porque aqui quedaria la longitud de onda
 							fsmState=ESTADO_MENU_ENSAYOS;
 							tipoensayo=ENSAYOS;
-							break;
+						break;
 
 						default:
 
-							break;
+						break;
 						}
                      break;
 
@@ -352,9 +342,6 @@ void fsmtareaestadosUpdate( void ){
 
 						// xSemaphoreGive(sem_posicioncero);No conviene ponerlo en la tarea
 					//	 stepperMotorL297Move1nanometerCCW(&steppermotor);
-
-
-
 
 
 
