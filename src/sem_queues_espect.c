@@ -1,5 +1,6 @@
 
 #include "sem_queues_espect.h"
+#include "debouncetecla.h"
 
 #include "sapi.h"
 
@@ -48,6 +49,28 @@ int sem_queues_init(void)
          printf ("Error al crear Semaforos binarios ");
          return 1;
         }
+   return 0;
+}
+
+int teclas_config(void){
+	tecla_config[0].tecla= TEC1;
+	tecla_config[0].sem_tec_pulsada	= xSemaphoreCreateBinary();
+
+	tecla_config[1].tecla= TEC2;
+	tecla_config[1].sem_tec_pulsada	= xSemaphoreCreateBinary();
+
+	tecla_config[2].tecla= TEC3;
+	tecla_config[2].sem_tec_pulsada	= xSemaphoreCreateBinary();
+
+	tecla_config[3].tecla= TEC4;
+	tecla_config[3].sem_tec_pulsada = xSemaphoreCreateBinary();
+
+	if((tecla_config[0].sem_tec_pulsada==NULL)||(tecla_config[1].sem_tec_pulsada	==NULL)||(tecla_config[2].sem_tec_pulsada==NULL)||
+			tecla_config[3].sem_tec_pulsada==NULL) //Verifico creacion de semaforos binarios
+	        {
+	         printf ("Error al crear Semaforos binarios ");
+	         return 1;
+	        }
    return 0;
 }
 

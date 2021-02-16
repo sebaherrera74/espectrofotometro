@@ -33,7 +33,7 @@ DEBUG_PRINT_ENABLE;
 
 
 /*=====[Definiciones de variables globales privadas]=========================*/
-void teclas_config(void);
+//void teclas_config(void);
 
 
 /*=====[Funcion principal, punto de entrada al programa luegp de encender]===*/
@@ -44,11 +44,10 @@ int main (void){
 	boardInit();
 	i2cInit( I2C0, 100000 );
 	uartConfig( UART_USB, 115200 );
-	//uartWriteString( UART_USB,"Driver de Espectrofotometro \r\n" );
-	teclas_config();
-	//Aqui tendria que ir el chequeo de la posicion cero del motor
-	/* funcion que crea semaforos y colas a utilizar */
-	Error_creacion_Colas=sem_queues_init();  //Creacion de colas y semaforos
+
+	/* creo semaforos y colas a utilizar
+	 * y verifico si fueron creados correctamente */
+	Error_creacion_Colas=(sem_queues_init() || teclas_config());  //Creacion de colas y semaforos
 
 	//CREACION DE TAREAS EN  freeRTOS
 
@@ -61,6 +60,8 @@ int main (void){
 			tskIDLE_PRIORITY+1,                  // Prioridad de la tarea
 			0);                                  // Puntero a la tarea creada en el sistema
 
+
+   //Tarea de visualizacion en Display de todo el proceso
 	BaseType_t res2 =xTaskCreate(tarea_general,  // Funcion de la tarea a ejecutar
 			(const char *)"Tarea gral",      // Nombre de la tarea como String amigable para el usuario
 			configMINIMAL_STACK_SIZE*2,      // Cantidad de stack de la tarea
@@ -68,6 +69,7 @@ int main (void){
 			tskIDLE_PRIORITY+1,              // Prioridad de la tarea
 			0);                              // Puntero a la tarea creada en el sistema
 
+	//Tarea de Ensayo en una determinada Longitud de Onda
 	BaseType_t res3 =xTaskCreate(tarea_motorstepper,     // Funcion de la tarea a ejecutar
 			(const char *)"motor paso a paso ",  // Nombre de la tarea como String amigable para el usuario
 			configMINIMAL_STACK_SIZE*2,          // Cantidad de stack de la tarea
@@ -75,6 +77,7 @@ int main (void){
 			tskIDLE_PRIORITY+2,                  // Prioridad de la tarea, le doy mas prioridad
 			0);                                  // Puntero a la tarea creada en el sistema
 
+	//Tarea de Ensayo Barrido de Longitud de onda
 	BaseType_t res4 =xTaskCreate(tarea_barridoLO,     // Funcion de la tarea a ejecutar
 			(const char *)"tarea barrido LO",  // Nombre de la tarea como String amigable para el usuario
 			configMINIMAL_STACK_SIZE*2,          // Cantidad de stack de la tarea
@@ -90,8 +93,7 @@ int main (void){
 		while(TRUE);                              //Entro en un lazo cerrado
 	}
 
-
-	//Si se creron bien las colas y los semaforos lanzo el scheduler
+	//Si se crearon bien las colas y los semaforos lanzo el scheduler
 	if (Error_creacion_Colas==0){
 		vTaskStartScheduler();
 	}else{
@@ -108,20 +110,7 @@ int main (void){
 	return 0;
 }
 
-void teclas_config(void)
-{
-	tecla_config[0].tecla= TEC1;
-	tecla_config[0].sem_tec_pulsada	= xSemaphoreCreateBinary();
 
-	tecla_config[1].tecla= TEC2;
-	tecla_config[1].sem_tec_pulsada	= xSemaphoreCreateBinary();
-
-	tecla_config[2].tecla= TEC3;
-	tecla_config[2].sem_tec_pulsada	= xSemaphoreCreateBinary();
-
-	tecla_config[3].tecla= TEC4;
-	tecla_config[3].sem_tec_pulsada = xSemaphoreCreateBinary();
-}
 
 
 

@@ -28,7 +28,6 @@ extern "C" {
 
 /*=====[Macros de definicion de constantes publicas]=========================*/
 
-#define MSG_PANTALLA4   "Seleccione Longitud\n de Onda"
 
 /*=====[Macros estilo funcion publicas]======================================*/
 #define VALOR_MAX_LO  1050

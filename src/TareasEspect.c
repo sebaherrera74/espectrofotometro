@@ -61,7 +61,7 @@ void tarea_teclas( void* taskParmPtr ){
 	for (i = 0; i < 4; i++){
 		mefbotonInit(&config[i]);
 	}
-	portTickType xPeriodicity =  10/ portTICK_RATE_MS;
+	portTickType xPeriodicity =  1/ portTICK_RATE_MS;
 	portTickType xLastWakeTime = xTaskGetTickCount();
 
 	// ---------- REPETIR POR SIEMPRE --------------------------
@@ -69,9 +69,8 @@ void tarea_teclas( void* taskParmPtr ){
 		for (i = 0; i < 4; i++){
 			actualizacionTecla(&config[i]);  //update de tareas teclas 1 ,2
 		}
-		vTaskDelay(25/portTICK_RATE_MS);
-		//vTaskDelayUntil( &xLastWakeTime, xPeriodicity );
-	}
+		vTaskDelayUntil(&xLastWakeTime,xPeriodicity);
+		}
 }
 
 void tarea_general( void* taskParmPtr ){
@@ -81,10 +80,10 @@ void tarea_general( void* taskParmPtr ){
 
 	while(TRUE) {
 		fsmtareaestadosUpdate();
-		vTaskDelay(100/portTICK_RATE_MS);
+		vTaskDelay(1/portTICK_RATE_MS);
 	}
 }
-//Tarea va ser para el ensayo de longitud d eonda determinada
+//Tarea va ser para el ensayo de longitud de onda determinada
 void tarea_motorstepper( void* taskParmPtr ){
 	tTecla* config = (tTecla*) taskParmPtr;
 	static volatile uint16_t muestra = 0;
@@ -96,6 +95,8 @@ void tarea_motorstepper( void* taskParmPtr ){
 	adcConfig( ADC_ENABLE ); /* Inicializo ADC */
 
 	while(TRUE) {
+
+
 		if(xQueueReceive(valorLOselec_queue, &aux, portMAX_DELAY)){
 			stepperMotorL297MoveXNanometers(&steppermotor,aux);
 			//Una vez que el motor se posiciona, tomo la lectura del valor analogico
@@ -147,9 +148,6 @@ void tarea_barridoLO( void* taskParmPtr ){
 		vTaskDelay(1000/portTICK_RATE_MS);
 	}
 }
-
-
-
 
 
 /*=====[Implementaciones de funciones de interrupcion publicas]==============*/

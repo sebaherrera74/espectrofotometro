@@ -6,8 +6,6 @@
  *
  * Version: 0.0.1
  * Fecha de creacion: 2021/01/11
- *
- *
  */
 
 /*=====[Inclusion de su propia cabecera]=====================================*/
@@ -24,23 +22,17 @@
 #include "swichtIrq.h"
 #include "steppermotor_l297.h"
 
-
 /*=====[Macros de definicion de constantes privadas]=========================*/
 
-
-
+#define TIEMPO_PULSACION 500
+#define CAMBIOESCALA     100
 
 /*=====[Macros estilo funcion privadas]======================================*/
 
-
-
 /*=====[Definiciones de tipos de datos privados]=============================*/
-
 // Tipo de datos que renombra un tipo basico
 
-
 // Tipo de datos de puntero a funcion
-
 
 // Tipo de datos enumerado
 // Tipos de estados del display
@@ -67,7 +59,6 @@ typedef enum{
 	ENSAYO_ELOD_MUESTRAVALOR
 } menuensayoselod_t;
 
-
 //Estadosposibles en el caso del ensayo de barrido longitud de onda
 typedef enum{
 	ENSAYO_EBLO_INICIAL,
@@ -76,18 +67,14 @@ typedef enum{
 	ENSAYO_EBLO_FINAL
 } menuensayoseblo_t;
 
-
-
 // Tipo de datos estructua, union o campo de bits
 
 /*=====[Definiciones de Variables globales publicas externas]================*/
 
-
-
 /*=====[Definiciones de Variables globales publicas]=========================*/
 
 static uint16_t longitudonda=0;
-char texto[7];
+char longonda[7];
 char valorAnleido[10];
 
 /*=====[Definiciones de Variables globales privadas]=========================*/
@@ -98,11 +85,7 @@ menuensayoseblo_t ensayoeblo;
 
 /*=====[Prototipos de funciones privadas]====================================*/
 
-
-
 /*=====[Implementaciones de funciones publicas]==============================*/
-
-
 
 // FSM Error Handler Function
 void fsmtareaestadosError( void )
@@ -188,14 +171,14 @@ void fsmtareaestadosUpdate( void ){
 			switch( ensayoselod ){
 			case ENSAYO_ELOD_INICIAL:
 				if(xSemaphoreTake(tecla_config[0].sem_tec_pulsada ,0)){
-					if(tecla_config[0].tiempo_diff > 500){              //Si presiono mas de 500 mseg muevo la longitud d eonda de a 100
-						longitudonda=longitudonda+100;
+					if(tecla_config[0].tiempo_diff > TIEMPO_PULSACION/portTICK_RATE_MS){              //Si presiono mas de 500 mseg muevo la longitud d eonda de a 100
+						longitudonda=longitudonda+CAMBIOESCALA;
 					}
 					longitudonda++;
 				}
 				if (xSemaphoreTake(tecla_config[1].sem_tec_pulsada ,0)){
-					if(tecla_config[0].tiempo_diff > 500){              //Si presiono mas de 500 mseg muevo la longitud d eonda de a 100
-						longitudonda=longitudonda-100;
+					if(tecla_config[0].tiempo_diff > TIEMPO_PULSACION/portTICK_RATE_MS){              //Si presiono mas de 500 mseg muevo la longitud d eonda de a 100
+						longitudonda=longitudonda-CAMBIOESCALA;
 					}
 					longitudonda--;
 				}
@@ -204,11 +187,11 @@ void fsmtareaestadosUpdate( void ){
 				}
 				if (longitudonda>VALOR_MAX_LO){
 					longitudonda=VALOR_MIN_LO;
-					memset (texto,'\0',7);
+					memset (longonda,'\0',7);
 					cambiofondo(ILI9341_LIGHTCORAL);
 				}
-				sprintf(texto, "%d", longitudonda); // guardo el valor de longitud de onda seleccionado en un buffer
-				seleccionlongonda(texto);
+				sprintf(longonda, "%d", longitudonda); // guardo el valor de longitud de onda seleccionado en un buffer
+				seleccionlongonda(longonda);
 				if(xSemaphoreTake(tecla_config[2].sem_tec_pulsada ,0)){
 					ensayoselod =ENSAYO_ELOD_CONFIRMACION;
 					cambiofondo(ILI9341_LIGHTCORAL);
@@ -240,7 +223,7 @@ void fsmtareaestadosUpdate( void ){
 				//Recibo de la cola el valor analogico leido
 				xQueueReceive(valorAnLeido, &valorAnleido, 1);
 				//Muestro valor de longitud de onda posicionado
-				valorlongondaselecc(texto,valorAnleido);
+				valorlongondaselecc(longonda,valorAnleido);
 			break;
 			default:
 			break;
@@ -264,9 +247,16 @@ void fsmtareaestadosUpdate( void ){
 					 * 							 */
 
 					if(longitudonda|=0){
+
 						cambiofondo(ILI9341_LIGHTCORAL);
 						posicioncero();
-						xQueueSend(valorLOselec_queue, &valor_minimo, 20);
+						//xQueueSend(valormaximoLO_queue, &valor_maximo, portMAX_DELAY);
+						while(longitudonda|=0){
+						stepperMotorL297Move1nanometerCCW(&steppermotor);
+						longitudonda--;
+
+						}
+						//xQueueSend(valorLOselec_queue, &valor_minimo, 20);
 						longitudonda=valor_minimo;
 					}
 					ensayoeblo=ENSAYO_EBLO_CONFIRMACION;
@@ -292,12 +282,12 @@ void fsmtareaestadosUpdate( void ){
 					xQueueSend(valormaximoLO_queue, &valor_maximo, portMAX_DELAY);  //Aqui mando el barrido, con el valor maximo
 
 					if (xSemaphoreTake(sem_final_barrido,portMAX_DELAY)){
-						ensayoeblo =ENSAYO_EBLO_FINAL;
+						ensayoeblo =ENSAYO_EBLO_INICIAL;
 					}
 					//Podria poner algun mensaje para avisar que el motor
 					//termino el barrido y esta volviendo a cero
 					cambiofondo(ILI9341_LIGHTCORAL);
-
+                break;
 				case ENSAYO_EBLO_FINAL:
 					//vuelvo a colocar el motor en posicion cero
 					//cambio variable global a cero

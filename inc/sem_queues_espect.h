@@ -28,7 +28,10 @@ QueueHandle_t valormaximoLO_queue;
 QueueHandle_t valorAnLeido;       //Valor analogico leido
 QueueHandle_t txQueue;
 
+//Funcion que inicializa los semaforos,colas y mutex
 int sem_queues_init(void);
+//Funcion que iniciliza las teclas y los semaforos boinaris de cada tecla
+int teclas_config(void);
 
 
 

@@ -155,7 +155,6 @@ void stepperMotorL297SetDireccionGiro(steppermotor_l297_t *steppermotor,stepperm
 	default:
 		gpioWrite(steppermotor->Gpiodireccion,ON);
 		steppermotor->direccion=direcciongiro;
-
 		break;
 	}
 }
@@ -184,7 +183,6 @@ void stepperMotorL297SetEnable(steppermotor_l297_t *steppermotor,steppermotor_l2
 		default:
 			gpioWrite(steppermotor->Gpioenable,ON);
 			steppermotor->enable=habilitacion;
-
 			break;
 		}
 }

@@ -35,13 +35,10 @@ void RotarPantalla(void){
 	TM_ILI9341_Rotate(TM_ILI9341_Orientation_Landscape_1);
 }
 
-
-
-
 void cambiofondo(uint32_t color){
 	TM_ILI9341_Fill(color);
-
 }
+
 void posicioncero(void){
 	//TM_ILI9341_Fill(ILI9341_COLOR_RED);
 	TM_ILI9341_Puts(0,0, MSG_PANTALLA1, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_COLOR_RED);
@@ -49,7 +46,6 @@ void posicioncero(void){
 	TM_ILI9341_Puts(0,120, MSG_PANTALLA2, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_RED);
 	//delay(250);
 }
-
 
 void barraColores(void){
 	uint16_t i=0;
@@ -125,16 +121,15 @@ void tipoensayos(void){
 	TM_ILI9341_Puts(0,0, MSG_PANTALLA3, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_LIGHTCORAL);
 	TM_ILI9341_Puts(0,120, MSG_PANTALLA3_1, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_LIGHTCORAL);
 }
+
 void ensayolongitudonda(void){
 	TM_ILI9341_Puts(0,0, MSG_PANTALLA3, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_COLOR_RED);
 	TM_ILI9341_Puts(0,120, MSG_PANTALLA3_1, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_LIGHTCORAL);
 }
 
-
 void ensayobarrido(void){
 	TM_ILI9341_Puts(0,0, MSG_PANTALLA3, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_LIGHTCORAL);
-	TM_ILI9341_Puts(0,120, MSG_PANTALLA3_1, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_COLOR_RED);
-
+    TM_ILI9341_Puts(0,120, MSG_PANTALLA3_1, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_COLOR_RED);
 }
 
 void seleccionlongonda(char *valorseleccionado){
@@ -154,13 +149,12 @@ void confirmacionensayoEblo(void){
 	TM_ILI9341_Puts(0,160, MSG_PANTALLA7, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_LIGHTCORAL);
 
 }
+
 void valorlongondaselecc(char *valorseleccionado,char*valoranleido){
 	TM_ILI9341_Puts(0,0, MSG_PANTALLA8, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_COLOR_RED);
 	TM_ILI9341_Puts(110,120, valorseleccionado, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_LIGHTCORAL);
 	TM_ILI9341_Puts(110,150, valoranleido, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_LIGHTCORAL);
-
 }
-
 
 void respsi(void){
 	TM_ILI9341_Puts(60,120, MSG_PANTALLA6, &TM_Font_16x26, ILI9341_COLOR_BLACK,ILI9341_COLOR_RED );
@@ -172,12 +166,10 @@ void respno(void){
 
 void ensayoenproceso(void){
 	TM_ILI9341_Puts(0,0,  MSG_PANTALLA10 , &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_COLOR_RED);
-
 }
 
 void ensayoenproceso_2(void){
 	TM_ILI9341_Puts(0,0,  MSG_PANTALLA11 , &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_COLOR_RED);
-
 }
 
 
