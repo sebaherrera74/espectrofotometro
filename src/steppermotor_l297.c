@@ -89,9 +89,6 @@ static int32_t varGlobalPrivada = 0;
 
 static volatile uint32_t countIrq=0;    //contador de interrupciones por timer
 static volatile uint32_t countPasos=0;  //Variable Global contador de pasos
-static volatile uint32_t PosicionActual=0;
-static volatile uint32_t PosicionDeseada=0;
-static volatile uint32_t DiferenciaPosicion=0;
 
 /*=====[Prototipos de funciones privadas]====================================*/
 
@@ -124,6 +121,9 @@ void stepperMotorL297Init(steppermotor_l297_t *steppermotor,uint32_t numerodepas
 	steppermotor->Gpioreset=reset;
 	steppermotor-> Gpiohalf_full_step=half_full;
 	steppermotor->Gpiodireccion=cw_ccw;
+	steppermotor->PosicionActual=0;
+	steppermotor->PosicionDeseada=0;
+	steppermotor->DiferenciaPosicion=0;
 
 	// configuro el como salidas los GPIO'S
 
@@ -244,8 +244,6 @@ steppermotor_l297_half_full stepperMotorL297GetHalfFull(steppermotor_l297_t *ste
 	return steppermotor->half_full_l297;
 }
 
-
-
 void stepperMotorL297SetVelocidad(steppermotor_l297_t *steppermotor,steppermotor_l297_velocidad velocidad){
 	steppermotor->velocidad=velocidad;
 
@@ -290,24 +288,24 @@ void stepperMotorL297MoveXNanometers(steppermotor_l297_t *steppermotor,uint32_t 
 
 	uint8_t flag=1;
 
-	PosicionDeseada=LongOnda*NANOMT_XPASO;
+	steppermotor->PosicionDeseada=LongOnda*NANOMT_XPASO;
 
-	if (PosicionDeseada==PosicionActual){
+	if (steppermotor->PosicionDeseada==steppermotor->PosicionActual){
 		steppermotor->estado_motor=motor_estado_inicial;
 		}
 	else {
-		if (PosicionDeseada>PosicionActual){
-			if (PosicionDeseada>PASO_MAXIMO){ //Si el valor es mayor al maximo que tiene el motor deshabilito el mismo
+		if (steppermotor->PosicionDeseada>steppermotor->PosicionActual){
+			if (steppermotor->PosicionDeseada>PASO_MAXIMO){ //Si el valor es mayor al maximo que tiene el motor deshabilito el mismo
 				steppermotor->estado_motor=motor_estado_final;  //Aqui habria que enviar un mensaje de error, diciendo que supera el valor maximo
 			}
 			else{
 				steppermotor->estado_motor=motor_estado_avance;
-				DiferenciaPosicion=PosicionDeseada-PosicionActual;
+				steppermotor->DiferenciaPosicion=(steppermotor->PosicionDeseada)-(steppermotor->PosicionActual);
 			}
 		}
 		else{
 			steppermotor->estado_motor=motor_estado_retroceso;
-			DiferenciaPosicion=PosicionActual-PosicionDeseada; //Calculo la diferencia es lo que tendria que "retroceder" el motor
+			steppermotor->DiferenciaPosicion=(steppermotor->PosicionActual)-(steppermotor->PosicionDeseada); //Calculo la diferencia es lo que tendria que "retroceder" el motor
 
 			}
 	}
@@ -327,7 +325,7 @@ void stepperMotorL297MoveXNanometers(steppermotor_l297_t *steppermotor,uint32_t 
 			stepperMotorL297SetDireccionGiro(steppermotor,sentido_cw);
             //lanzo timmer
 			signalStart();
-			while(countIrq<=2*DiferenciaPosicion); //Quedo en un lazo cerrado hasta que cuente las interrupciones con la posiciondeseada
+			while(countIrq<=2*steppermotor->DiferenciaPosicion); //Quedo en un lazo cerrado hasta que cuente las interrupciones con la posiciondeseada
 			steppermotor->estado_motor=motor_estado_final;
 
 			break;
@@ -339,7 +337,7 @@ void stepperMotorL297MoveXNanometers(steppermotor_l297_t *steppermotor,uint32_t 
 			stepperMotorL297SetDireccionGiro(steppermotor,sentido_ccw);
 			//lanzo timmer
 			signalStart();
-			while(countIrq<=2*DiferenciaPosicion); //Quedo en un lazo cerrado hasta que cuente las interrupciones con la posiciondeseada
+			while(countIrq<=2*steppermotor->DiferenciaPosicion); //Quedo en un lazo cerrado hasta que cuente las interrupciones con la posiciondeseada
 			steppermotor->estado_motor=motor_estado_final;
 
 
@@ -349,7 +347,7 @@ void stepperMotorL297MoveXNanometers(steppermotor_l297_t *steppermotor,uint32_t 
 			stepperMotorL297SetEnable(steppermotor,motor_disable );
 			signalStop();
 			countIrq=0;
-			PosicionActual=PosicionDeseada;
+			steppermotor->PosicionActual=steppermotor->PosicionDeseada;
 			flag=0;
 
 			break;
@@ -397,6 +395,13 @@ void stepperMotorL297Move1nanometerCCW(steppermotor_l297_t *steppermotor){
 				stepperMotorL297SetEnable(steppermotor,motor_disable);
 				signalStop();
 
+
+}
+
+void stepperMotorL297ResetPosiciones(steppermotor_l297_t *steppermotor){
+	steppermotor->PosicionDeseada=0;
+	steppermotor->PosicionActual=0;
+	steppermotor->DiferenciaPosicion=0;
 
 }
 

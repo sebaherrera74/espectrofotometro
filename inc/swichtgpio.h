@@ -10,8 +10,8 @@
 
 /*=====[Evitar inclusion multiple comienzo]==================================*/
 
-#ifndef _SWICHTIRQ_H_
-#define _SWICHTIRQ_H_
+#ifndef _SWICHTGPIO_H_
+#define _SWICHTGPIO_H_
 
 /*=====[Inclusiones de dependencias de funciones publicas]===================*/
 
@@ -40,25 +40,26 @@ extern "C" {
 
 // Tipo de datos enumerado
 typedef enum {
-  otralongitudonda,
-  longitudondacero,
-} swichtIrq_estadoswicht;
+  abierto ,                //otralongitudonda
+  cerrado                  // longitudondacero,
+} swichtgpio_estado_swicht;
 
 // Tipo de datos estructua, union o campo de bits
 
 typedef struct {
 	gpioMap_t normalabierto;
-	swichtIrq_estadoswicht estadoswicht;
-}swichtIrq_t;
+	swichtgpio_estado_swicht estadoswicht;
+}swichtgpio_t;
 
-swichtIrq_t swichtIrq;
+swichtgpio_t swichtgpio;
 
 
 /*=====[Prototipos de funciones publicas]====================================*/
 
-void swichtIrq_init( swichtIrq_t *swicht,gpioMap_t normalabierto);
+void swichtgpio_init( swichtgpio_t *swicht,gpioMap_t normalabierto);
                     //                         GPIO6
-uint8_t swichtIrqEstado(swichtIrq_t *swicht);
+swichtgpio_estado_swicht swichtgpioEstado(swichtgpio_t *swicht);
+
 
 
 

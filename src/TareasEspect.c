@@ -61,7 +61,7 @@ void tarea_teclas( void* taskParmPtr ){
 	for (i = 0; i < 4; i++){
 		mefbotonInit(&config[i]);
 	}
-	portTickType xPeriodicity =  1/ portTICK_RATE_MS;
+	portTickType xPeriodicity =  10/ portTICK_RATE_MS;
 	portTickType xLastWakeTime = xTaskGetTickCount();
 
 	// ---------- REPETIR POR SIEMPRE --------------------------

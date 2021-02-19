@@ -97,6 +97,9 @@ typedef struct {
 	gpioMap_t Gpiodireccion;           //sentido agujas del reloj Horario (CW) o antihorario (CCW)
 	gpioMap_t Gpioenable;
 	gpioMap_t control;
+	uint32_t PosicionActual;               //Varaible que me va ha decir la posicion actual del motor
+	uint32_t PosicionDeseada;              //Varaible que me va ha decir la psocion deseada en donde quiero posicionar el motor
+	uint32_t DiferenciaPosicion;           //diferencia
 	steppermotor_l297_direccion direccion;
 	steppermotor_l297_velocidad velocidad;
 	steppermotor_l297_enable enable;
@@ -159,7 +162,7 @@ void stepperMotorL297Move1nanometerCW(steppermotor_l297_t *steppermotor);
 
 void stepperMotorL297Move1nanometerCCW(steppermotor_l297_t *steppermotor);
 
-
+void stepperMotorL297ResetPosiciones(steppermotor_l297_t *steppermotor);
 
 /*=====[Prototipos de funciones publicas de interrupcion]====================*/
 
