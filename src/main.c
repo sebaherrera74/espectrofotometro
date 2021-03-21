@@ -37,7 +37,6 @@ DEBUG_PRINT_ENABLE;
 
 
 /*=====[Funcion principal, punto de entrada al programa luegp de encender]===*/
-
 int main (void){
 	int Error_creacion_Colas=0; //Variable para verificar la crecion de colas y semaforos
 	// ----- Configuraciones -------------------------
@@ -70,7 +69,7 @@ int main (void){
 			0);                              // Puntero a la tarea creada en el sistema
 
 	//Tarea de Ensayo en una determinada Longitud de Onda
-	BaseType_t res3 =xTaskCreate(tarea_motorstepper,     // Funcion de la tarea a ejecutar
+	BaseType_t res3 =xTaskCreate(tarea_LOdeterminada,     // Funcion de la tarea a ejecutar
 			(const char *)"motor paso a paso ",  // Nombre de la tarea como String amigable para el usuario
 			configMINIMAL_STACK_SIZE*2,          // Cantidad de stack de la tarea
 			0,                                   // Parametros de tarea

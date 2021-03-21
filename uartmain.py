@@ -39,6 +39,23 @@ def command_list():
 
 def ELOD():
     print("Ensayo Longitud de Onda Determinada")
+    cont=0
+    while(1):
+        fichero=open('informe_sensores.csv','a')  #puede ir afuera del while
+        lectura=PuertoSerie.readline()
+        print(str(lectura))
+        nuevoDato = float(lectura.decode('utf-8'))
+        print(str(nuevoDato))
+        fichero.write(str(nuevoDato)+',')
+
+        #cuento 2 veces para recibir los datos y recien le coloco un final de linea
+        cont=cont+1
+        if cont==2:
+            fichero.write('\n')
+            cont=0
+
+    
+
     return
 
 def EBLO():
@@ -111,8 +128,7 @@ def Update(curva):
 signal.signal(signal.SIGINT, signal_handler)
 
 def main():
-
-   uart_main()
+    uart_main()
 
 
 

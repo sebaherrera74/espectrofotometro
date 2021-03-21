@@ -77,15 +77,12 @@ typedef void (*FuncPtrPrivado_t)(void *);
 
 /*=====[Definiciones de Variables globales publicas externas]================*/
 
-extern int32_t varGlobalExterna;
 
 /*=====[Definiciones de Variables globales publicas]=========================*/
 
-int32_t varGlobalPublica = 0;
+
 
 /*=====[Definiciones de Variables globales privadas]=========================*/
-
-static int32_t varGlobalPrivada = 0;
 
 static volatile uint32_t countIrq=0;    //contador de interrupciones por timer
 static volatile uint32_t countPasos=0;  //Variable Global contador de pasos
@@ -98,7 +95,7 @@ static void signalStart (void);  //Lanza timer
 static void signalStop( void );   //Para el timer
 
 void TIMER2_IRQHandler(void);
-static void funPrivada(void);
+
 
 /*=====[Implementaciones de funciones publicas]==============================*/
 
@@ -131,6 +128,10 @@ void stepperMotorL297Init(steppermotor_l297_t *steppermotor,uint32_t numerodepas
 	gpioConfig(steppermotor->Gpioreset          ,GPIO_OUTPUT);
 	gpioConfig(steppermotor->Gpiohalf_full_step ,GPIO_OUTPUT);
 	gpioConfig(steppermotor->Gpiodireccion      ,GPIO_OUTPUT);
+
+	stepperMotorL297SetFullHalf(steppermotor,l297_half );
+	stepperMotorL297SetReset(steppermotor, l297_set);
+
 
 	signalInit(); //Inicializacion de Timer 2, por GPIO3
 
@@ -388,14 +389,11 @@ void stepperMotorL297Move1nanometerCCW(steppermotor_l297_t *steppermotor){
 				//habilito giro en sentido agujas de reloj
 				stepperMotorL297SetDireccionGiro(steppermotor,sentido_ccw);
 	            //lanzo timmer
-
 				while(countIrq<=2*NANOMT_XPASO){
 					signalStart();
 				}
 				stepperMotorL297SetEnable(steppermotor,motor_disable);
-				signalStop();
-
-
+    			signalStop();
 }
 
 void stepperMotorL297ResetPosiciones(steppermotor_l297_t *steppermotor){
@@ -405,37 +403,16 @@ void stepperMotorL297ResetPosiciones(steppermotor_l297_t *steppermotor){
 
 }
 
-/*Funcion para el barrido de longitud de onda
- * Esta seria una funcion que cuando se selecciona el ensayo ese,
- * el motor primero se posicionaria en la posicion cero, scwitch de poscion en cero
- * Si el motor no esta en el swicth cero , giraria en sentido contrario a las agujas del reloj
- * hasta posicionarse en cero.
- * Una vez realizado esto comenzaria el movimiento del motor en sentido de las agujas del reloj
- * hasta contar los 12600 pasos(1050 Nanometros)
- *
- */
-
-
-
-
-
-
-
 /*=====[Implementaciones de funciones de interrupcion publicas]==============*/
 //contador de interrupciones,este contador contara tanto las interrupciones producidas por flancos positivos,
 //como por flancos negativos del clock externo por GPIO3,
 
 void TIMER2_IRQHandler(void){
-	static bool On = false;
 
 	if (Chip_TIMER_MatchPending(SIGNAL_TIMER, 2)) {
-
 		gpioToggle(LEDB);
 		countIrq++;
 		Chip_TIMER_ClearMatch(SIGNAL_TIMER, 2);
-
-		//On = (bool) !On;
-		//Board_LED_Set(0, On);
 	}
 }
 
@@ -495,9 +472,4 @@ static void signalStop( void )
    Chip_TIMER_Disable( SIGNAL_TIMER );
 }
 
-
-static void funPrivada(void)
-{
-   // ...
-}
 

@@ -42,6 +42,7 @@
 /*=====[Prototipos de funciones privadas]====================================*/
 static char* itoa(int value, char* result, int base);
 static void posicionoCeroMotor(uint32_t valorLOmaximo,uint16_t variableaux);
+static void envioDatosSeriales(char *longonda,char *valormedido);
 
 /*=====[Implementaciones de funciones publicas]==============================*/
 
@@ -69,8 +70,8 @@ void tarea_teclas( void* taskParmPtr ){
 		for (i = 0; i < 4; i++){
 			actualizacionTecla(&config[i]);  //update de tareas teclas 1 ,2
 		}
-		vTaskDelayUntil(&xLastWakeTime,xPeriodicity);
-		}
+		vTaskDelay(1/portTICK_RATE_MS);
+	}
 }
 
 void tarea_general( void* taskParmPtr ){
@@ -84,29 +85,27 @@ void tarea_general( void* taskParmPtr ){
 	}
 }
 //Tarea va ser para el ensayo de longitud de onda determinada
-void tarea_motorstepper( void* taskParmPtr ){
+void tarea_LOdeterminada( void* taskParmPtr ){
 	tTecla* config = (tTecla*) taskParmPtr;
 	static volatile uint16_t muestra = 0;
 	static char Buff[10];
+	static char Londa[10];
+
 	uint32_t aux=0;
 
-	stepperMotorL297Init(&steppermotor,48,GPIO4,GPIO7,GPIO8,GPIO5);
-	stepperMotorL297SetVelocidad(&steppermotor,velocidad_media);
+	stepperMotorL297Init(&steppermotor,48,GPIO4,GPIO1,GPIO2,GPIO5);
+	stepperMotorL297SetVelocidad(&steppermotor,velocidad_alta);
 	adcConfig( ADC_ENABLE ); /* Inicializo ADC */
 
 	while(TRUE) {
-
-
 		if(xQueueReceive(valorLOselec_queue, &aux, portMAX_DELAY)){
 			stepperMotorL297MoveXNanometers(&steppermotor,aux);
 			//Una vez que el motor se posiciona, tomo la lectura del valor analogico
-
 			muestra = adcRead( CH1 ); //Leo valor de la muestra tomado
 			itoa( muestra,Buff,10 ); /* 10 significa decimal */
-			//mando por una cola el valor leido del conversor ADC
+			itoa( aux,Londa,10 );
+			envioDatosSeriales(Londa,Buff);
 			xQueueSend(valorAnLeido,&Buff,portMAX_DELAY);
-
-			//xSemaphoreGive( sem_motorposicionadoLOD ); por ahora no me hace falta
 		}
 		vTaskDelay(40/portTICK_RATE_MS);
 	}
@@ -159,7 +158,7 @@ static void posicionoCeroMotor(uint32_t valorLOmaximo,uint16_t variableaux){
 	while(valorLOmaximo>variableaux){
 		stepperMotorL297Move1nanometerCCW(&steppermotor);
 		variableaux++;
-		}
+	}
 	variableaux=0;
 }
 
@@ -185,5 +184,17 @@ static char* itoa(int value, char* result, int base) {
 		*ptr1++ = tmp_char;
 	}
 	return result;
+}
+
+static void envioDatosSeriales(char *longonda,char *valormedido){
+	// envio por puerto serial el valor longitud de onda posicionado
+	uartWriteString( UART_USB,longonda );
+	//uartWriteString( UART_USB, "," );
+	uartWriteString( UART_USB, "\n" );
+
+	// envio por puerto serial el valor leido del conversor ADC
+	uartWriteString( UART_USB,valormedido );
+	//uartWriteString( UART_USB, "," );
+	uartWriteString( UART_USB, "\n" );
 }
 

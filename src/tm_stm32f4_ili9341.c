@@ -47,15 +47,15 @@ typedef struct {
 #define CS_GPIO_PORT     3
 #define CS_GPIO_PIN      0
 
-#define DC_MUX_GROUP     6		//DC = GPIO1: Pin32
-#define DC_MUX_PIN       4
+#define DC_MUX_GROUP     6		//DC = GPIO1: Pin32 CAMBIO A GPIO6//
+#define DC_MUX_PIN       10
 #define DC_GPIO_PORT     3
-#define DC_GPIO_PIN      3
+#define DC_GPIO_PIN      6
 
-#define RESET_MUX_GROUP     6	//RESET = GPIO2: Pin31
-#define RESET_MUX_PIN       5
+#define RESET_MUX_GROUP     6	//RESET = GPIO2: Pin31 cambio a gpio7
+#define RESET_MUX_PIN       11
 #define RESET_GPIO_PORT     3
-#define RESET_GPIO_PIN      4
+#define RESET_GPIO_PIN      7
 
 #define OUTPUT_DIR	1
 #define INPUT_DIR   0
@@ -150,7 +150,7 @@ void TM_ILI9341_Init() {
 
 	
 	//Board_SSP_Init();
-	Board_SSP_config(8,SSP_CLOCK_CPHA0_CPOL0 ,36000000);
+	Board_SSP_config(8,SSP_CLOCK_CPHA0_CPOL0 ,70000000);
 
 
 	/* Init DMA for SPI */

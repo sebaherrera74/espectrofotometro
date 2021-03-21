@@ -100,7 +100,7 @@ void fsmtareaestadosInit( void )
 	InitLcd();	                //inicilizo el display Ili9341
 	RotarPantalla();            //Roto pantalla a horizontal
 	barraColores();
-	swichtgpio_init(&swichtgpio,GPIO6); //inicializo el swicht conectado el na a GPIO06
+	swichtgpio_init(&swichtgpio,GPIO8); //inicializo el swicht conectado el na a GPIO08
 	stepperMotorL297ResetPosiciones(&steppermotor);
 	fsmState = ESTADO_INICIAL;   // Set initial state
 }
@@ -115,11 +115,7 @@ void fsmtareaestadosUpdate( void ){
 
 	case ESTADO_INICIAL:
 		posicioncero();
-		while(!swichtgpioEstado(&swichtgpio)){			//veo la posicion del swicht sino esta en cero giro el motor
-			/* que conviene aqui llamar directamente a la funcion de girra el motor
-			 * de la libreria de sttepermotor.h o un semaforo que vaya a la tarea?
-			 */
-			// xSemaphoreGive(sem_posicioncero);No conviene ponerlo en la tarea
+		while(!swichtgpioEstado(&swichtgpio)){		//veo la posicion del swicht sino esta en cero giro el motor
 			stepperMotorL297Move1nanometerCCW(&steppermotor);
 		}
 		cambiofondo(ILI9341_LIGHTCORAL);
@@ -137,31 +133,28 @@ void fsmtareaestadosUpdate( void ){
 		}
 
 		switch( tipoensayo ){
-			case ENSAYOS:
+
+		case ENSAYOS:
 			tipoensayos();
-			break;
-		    case ENSAYO_ELOD:
+		break;
+		case ENSAYO_ELOD:
 			ensayolongitudonda();
 			if(xSemaphoreTake(tecla_config[2].sem_tec_pulsada ,0)){
 				fsmState=ESTADO_ELOD;
 				ensayoselod=ENSAYO_ELOD_INICIAL;
 				cambiofondo(ILI9341_LIGHTCORAL);
-				}
-			break;
-		    case ENSAYO_EBLO:
+			}
+		break;
+		case ENSAYO_EBLO:
 			ensayobarrido();
 			if(xSemaphoreTake(tecla_config[2].sem_tec_pulsada ,0)){
 				fsmState=ESTADO_EBLO;
 				ensayoeblo=ENSAYO_EBLO_INICIAL;
-				}
-			break;
-		    default:
+			}
+		break;
+		default:
 			tipoensayos();
-			break;
-		}
-		if(xSemaphoreTake(tecla_config[3].sem_tec_pulsada ,0)){  //si presiono tecla 4 return vuelvo al inicio
-			fsmState=ESTADO_MENU_ENSAYOS;
-			//tipoensayo=ENSAYOS;
+		break;
 		}
 		break;
 		case ESTADO_ELOD:
@@ -220,9 +213,9 @@ void fsmtareaestadosUpdate( void ){
 				valorlongondaselecc(longonda,valorAnleido);
 
 
-			break;
+				break;
 			default:
-			break;
+				break;
 			}
 
 			if(xSemaphoreTake(tecla_config[3].sem_tec_pulsada ,0)){  //si presiono tecla 4 return vuelvo al inicio
@@ -241,18 +234,18 @@ void fsmtareaestadosUpdate( void ){
 					/*AQUI CHEQUEO POSICIONCERO SI PASA VOY A CONFIRMACION
 					 * porque puede haber estado haciendo otro ensayo y no me quedo en cero
 					 * 							 */
-     				if(longitudonda|=0 ){
+					if(longitudonda|=0 ){
 						cambiofondo(ILI9341_LIGHTCORAL);
 						posicioncero();
 						while((longitudonda|=0)){
-						stepperMotorL297Move1nanometerCCW(&steppermotor);
-						longitudonda--;
+							stepperMotorL297Move1nanometerCCW(&steppermotor);
+							longitudonda--;
 						}
-					   //tendria que avisar que la posicion deseada y/o actual queda en cero
-					   //REvisar esto
+						//tendria que avisar que la posicion deseada y/o actual queda en cero
+						//REvisar esto
 						stepperMotorL297ResetPosiciones(&steppermotor);
 
-     				}
+					}
 					ensayoeblo=ENSAYO_EBLO_CONFIRMACION;
 					cambiofondo(ILI9341_LIGHTCORAL);
 					break;
@@ -282,34 +275,24 @@ void fsmtareaestadosUpdate( void ){
 					//Podria poner algun mensaje para avisar que el motor
 					//termino el barrido y esta volviendo a cero
 					cambiofondo(ILI9341_LIGHTCORAL);
-                break;
+					break;
 				case ENSAYO_EBLO_FINAL:
 					fsmState=ESTADO_MENU_ENSAYOS;
 					tipoensayo=ENSAYOS;
-				break;
+					break;
 				default:
-				break;
+					break;
 				}
 				break;
-    			/*while(!swichtIrqEstado(&swichtIrq)){			//veo la posicion del swicht sino esta en cero giro el motor
-			        /* que conviene aqui llamar directamente a la funcion de girra el motor
-				 * de la libreria de sttepermotor.h o un semaforo que vaya a la tarea?
-				 */
 
-				// xSemaphoreGive(sem_posicioncero);No conviene ponerlo en la tarea
-				//	 stepperMotorL297Move1nanometerCCW(&steppermotor);
 				case ESTADO_FINAL:
 					fsmState=ESTADO_MENU_ENSAYOS;
 					tipoensayo=ENSAYOS;
-					/* UPDATE OUTPUTS */
-					// Code for update outputs...
 
-					/* CHECK TRANSITION CONDITIONS */
-					// Code for check transitions (some ifs)...
-				break;
+					break;
 				default:
 					fsmtareaestadosError();
-				break;
+					break;
 	}
 }
 
