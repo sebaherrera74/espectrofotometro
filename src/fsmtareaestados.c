@@ -167,7 +167,7 @@ void fsmtareaestadosUpdate( void ){
 					longitudonda++;
 				}
 				if (xSemaphoreTake(tecla_config[1].sem_tec_pulsada ,0)){
-					if(tecla_config[0].tiempo_diff > TIEMPO_PULSACION/portTICK_RATE_MS){              //Si presiono mas de 500 mseg muevo la longitud d eonda de a 100
+					if(tecla_config[1].tiempo_diff > TIEMPO_PULSACION/portTICK_RATE_MS){              //Si presiono mas de 500 mseg muevo la longitud d eonda de a 100
 						longitudonda=longitudonda-CAMBIOESCALA;
 					}
 					longitudonda--;

@@ -24,7 +24,8 @@
 
 /*=====[Macros de definicion de constantes privadas]=========================*/
 
-#define QMC5883L_REG_Y_LSB       0x02
+#define RELACPASOSCT             4            //Relacion de pasos con timer
+
 #define MAX_AMOUNT_OF_RGB_LEDS   9
 
 // Posibles salidas de toggle pin on match
@@ -135,8 +136,6 @@ void stepperMotorL297Init(steppermotor_l297_t *steppermotor,uint32_t numerodepas
 
 	signalInit(); //Inicializacion de Timer 2, por GPIO3
 
-//Aqui tambien tendria que ir la funcion del sensor de poscion en cero, o se cuando arranque
-//que verfique que el motor se encuentra en cero
 }
 
 void stepperMotorL297SetDireccionGiro(steppermotor_l297_t *steppermotor,steppermotor_l297_direccion direcciongiro){
@@ -323,10 +322,10 @@ void stepperMotorL297MoveXNanometers(steppermotor_l297_t *steppermotor,uint32_t 
 			//habilito el motor
 			stepperMotorL297SetEnable(steppermotor,motor_enable);
 			//habilito giro en sentido agujas de reloj
-			stepperMotorL297SetDireccionGiro(steppermotor,sentido_cw);
+			stepperMotorL297SetDireccionGiro(steppermotor,sentido_ccw);
             //lanzo timmer
 			signalStart();
-			while(countIrq<=2*steppermotor->DiferenciaPosicion); //Quedo en un lazo cerrado hasta que cuente las interrupciones con la posiciondeseada
+			while(countIrq<=RELACPASOSCT*steppermotor->DiferenciaPosicion); //Quedo en un lazo cerrado hasta que cuente las interrupciones con la posiciondeseada
 			steppermotor->estado_motor=motor_estado_final;
 
 			break;
@@ -335,10 +334,10 @@ void stepperMotorL297MoveXNanometers(steppermotor_l297_t *steppermotor,uint32_t 
 			//habilito el motor
 			stepperMotorL297SetEnable(steppermotor,motor_enable);
 			//habilito giro en sentido contrario a las  agujas de reloj
-			stepperMotorL297SetDireccionGiro(steppermotor,sentido_ccw);
+			stepperMotorL297SetDireccionGiro(steppermotor,sentido_cw);
 			//lanzo timmer
 			signalStart();
-			while(countIrq<=2*steppermotor->DiferenciaPosicion); //Quedo en un lazo cerrado hasta que cuente las interrupciones con la posiciondeseada
+			while(countIrq<=RELACPASOSCT*steppermotor->DiferenciaPosicion); //Quedo en un lazo cerrado hasta que cuente las interrupciones con la posiciondeseada
 			steppermotor->estado_motor=motor_estado_final;
 
 
@@ -369,10 +368,10 @@ void stepperMotorL297Move1nanometerCW(steppermotor_l297_t *steppermotor){
 	            //habilito el motor
 				stepperMotorL297SetEnable(steppermotor,motor_enable);
 				//habilito giro en sentido agujas de reloj
-				stepperMotorL297SetDireccionGiro(steppermotor,sentido_cw);
+				stepperMotorL297SetDireccionGiro(steppermotor,sentido_ccw);
 	            //lanzo timmer
 
-				while(countIrq<=2*NANOMT_XPASO){
+				while(countIrq<=RELACPASOSCT*NANOMT_XPASO){
 					signalStart();
 				}
 				stepperMotorL297SetEnable(steppermotor,motor_disable);
@@ -387,9 +386,9 @@ void stepperMotorL297Move1nanometerCCW(steppermotor_l297_t *steppermotor){
 	            //habilito el motor
 				stepperMotorL297SetEnable(steppermotor,motor_enable);
 				//habilito giro en sentido agujas de reloj
-				stepperMotorL297SetDireccionGiro(steppermotor,sentido_ccw);
+				stepperMotorL297SetDireccionGiro(steppermotor,sentido_cw);
 	            //lanzo timmer
-				while(countIrq<=2*NANOMT_XPASO){
+				while(countIrq<=RELACPASOSCT*NANOMT_XPASO){
 					signalStart();
 				}
 				stepperMotorL297SetEnable(steppermotor,motor_disable);

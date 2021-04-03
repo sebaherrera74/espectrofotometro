@@ -32,7 +32,7 @@ extern "C" {
 /*=====[Macros estilo funcion publicas]======================================*/
 #define VALOR_MAX_LO  1050
 #define VALOR_MIN_LO   0
-#define VALOR_MAXIMO_LO_PRUEBA  100
+#define VALOR_MAXIMO_LO_PRUEBA  1050
 /*=====[Definiciones de tipos de datos publicos]=============================*/
 
 // Tipo de datos que renombra un tipo basico

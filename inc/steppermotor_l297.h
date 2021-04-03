@@ -29,7 +29,7 @@ extern "C" {
 #define PI 3.14
 #define BAJA    204000000
 #define MEDIA   1000000
-#define ALTA    580000
+#define ALTA    400000
 
 //Definiciones de .....
 

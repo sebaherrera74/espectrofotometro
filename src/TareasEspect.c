@@ -70,13 +70,14 @@ void tarea_teclas( void* taskParmPtr ){
 		for (i = 0; i < 4; i++){
 			actualizacionTecla(&config[i]);  //update de tareas teclas 1 ,2
 		}
-		vTaskDelay(1/portTICK_RATE_MS);
+		vTaskDelay(10/portTICK_RATE_MS);
 	}
 }
 
 void tarea_general( void* taskParmPtr ){
 	tTecla* config = (tTecla*) taskParmPtr;
 
+	stepperMotorL297Init(&steppermotor,48,GPIO4,GPIO1,GPIO2,GPIO5);
 	fsmtareaestadosInit();
 
 	while(TRUE) {
@@ -93,7 +94,7 @@ void tarea_LOdeterminada( void* taskParmPtr ){
 
 	uint32_t aux=0;
 
-	stepperMotorL297Init(&steppermotor,48,GPIO4,GPIO1,GPIO2,GPIO5);
+	//stepperMotorL297Init(&steppermotor,48,GPIO4,GPIO1,GPIO2,GPIO5);
 	stepperMotorL297SetVelocidad(&steppermotor,velocidad_alta);
 	adcConfig( ADC_ENABLE ); /* Inicializo ADC */
 
