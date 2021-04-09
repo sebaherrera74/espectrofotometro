@@ -12,11 +12,11 @@ int sem_queues_init(void)
    valorLO_queue     =xQueueCreate( 1, sizeof(uint16_t) );   //cola para pasar valor de longitud de onda
    valorLOselec_queue=xQueueCreate( 1, sizeof(uint16_t) );	//cola para pasar valor de longitud de onda seleccionada
    valorAnLeido      =xQueueCreate( 1, sizeof(char[10]) );
-   txQueue           =xQueueCreate(128, sizeof(char));      //cola para enviar datos por la UART
+   Transmitancia           =xQueueCreate(1, sizeof(char[10]));      //cola para enviar datos por la UART
    valormaximoLO_queue=xQueueCreate( 1, sizeof(uint16_t) );
 
 
-   if((valorLO_queue==NULL)||(valorLOselec_queue==NULL)||(valorAnLeido==NULL)||(txQueue==NULL)||(valormaximoLO_queue==NULL))//chequeo que se hallan creado bien las colas
+   if((valorLO_queue==NULL)||(valorLOselec_queue==NULL)||(valorAnLeido==NULL)||(Transmitancia==NULL)||(valormaximoLO_queue==NULL))//chequeo que se hallan creado bien las colas
 	{
 	  printf ("Error al crear colas");
 	  return 1;

@@ -16,6 +16,7 @@
 #include "fsmtareaestados.h"
 #include "steppermotor_l297.h"
 #include "sem_queues_espect.h"
+#include <math.h>
 /*=====[Inclusiones de dependencias de funciones privadas]===================*/
 
 /*=====[Macros de definicion de constantes privadas]=========================*/
@@ -82,6 +83,9 @@ void tarea_general( void* taskParmPtr ){
 
 	while(TRUE) {
 		fsmtareaestadosUpdate();
+
+
+
 		vTaskDelay(1/portTICK_RATE_MS);
 	}
 }
@@ -89,12 +93,13 @@ void tarea_general( void* taskParmPtr ){
 void tarea_LOdeterminada( void* taskParmPtr ){
 	tTecla* config = (tTecla*) taskParmPtr;
 	static volatile uint16_t muestra = 0;
+	static volatile float valorAnalogico = 0;   //Esto seria directamente la absorbancia
+	static volatile float potencia = 0;
+	static volatile double transmitancia=0;
 	static char Buff[10];
+	static char BuffTrans[10];
 	static char Londa[10];
-
 	uint32_t aux=0;
-
-	//stepperMotorL297Init(&steppermotor,48,GPIO4,GPIO1,GPIO2,GPIO5);
 	stepperMotorL297SetVelocidad(&steppermotor,velocidad_alta);
 	adcConfig( ADC_ENABLE ); /* Inicializo ADC */
 
@@ -103,12 +108,25 @@ void tarea_LOdeterminada( void* taskParmPtr ){
 			stepperMotorL297MoveXNanometers(&steppermotor,aux);
 			//Una vez que el motor se posiciona, tomo la lectura del valor analogico
 			muestra = adcRead( CH1 ); //Leo valor de la muestra tomado
-			itoa( muestra,Buff,10 ); /* 10 significa decimal */
+			valorAnalogico=(3.3/1024)*muestra;
+			floatToString( valorAnalogico, Buff, 3 );
+
+			potencia=2-valorAnalogico;
+			transmitancia=pow(10,potencia);
+			floatToString( transmitancia, BuffTrans, 1 );
+
+			//itoa( muestra,Buff,10 ); /* 10 significa decimal */
 			itoa( aux,Londa,10 );
 			envioDatosSeriales(Londa,Buff);
 			xQueueSend(valorAnLeido,&Buff,portMAX_DELAY);
+			xQueueSend(Transmitancia,&BuffTrans,portMAX_DELAY);
+
 		}
 		vTaskDelay(40/portTICK_RATE_MS);
+
+
+
+
 	}
 }
 
@@ -136,6 +154,8 @@ void tarea_barridoLO( void* taskParmPtr ){
 				//Envio los valores medidos en formato string al puerto serie
 				uartWriteString( UART_USB,Buff );
 				uartWriteString( UART_USB, "\n" );
+
+				vTaskDelay(1/portTICK_RATE_MS);
 			}
 			cantidadmuestras=0;
 

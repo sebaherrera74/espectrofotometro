@@ -77,6 +77,9 @@ static uint16_t longitudonda=0;
 char longonda[7];
 char valorAnleido[10];
 
+char Transmit[10];
+
+
 /*=====[Definiciones de Variables globales privadas]=========================*/
 fsmtareaestados_t fsmState;
 menuensayos_t   tipoensayo;
@@ -110,7 +113,13 @@ void fsmtareaestadosUpdate( void ){
 
 	uint32_t valor_maximo=VALOR_MAXIMO_LO_PRUEBA;//pongo un valor chico para probar
 	//uint32_t valor_minimo= VALOR_MIN_LO ;  //pongo un valor chico para probar
+	static volatile uint16_t valor = 0;
+	static volatile float valorAn = 0;
+	static volatile float arsorb=0;            //absorbancia
+	static volatile float transmit=0;   //transmitancia
 
+
+		static char Buff[10];
 	switch( fsmState ){
 
 	case ESTADO_INICIAL:
@@ -131,6 +140,17 @@ void fsmtareaestadosUpdate( void ){
 		if (xSemaphoreTake(tecla_config[1].sem_tec_pulsada ,0)){
 			tipoensayo=ENSAYO_EBLO;
 		}
+		valor = adcRead( CH1 );
+        valorAn=(3.3/1024)*valor;
+
+        floatToString( valorAn, Buff, 3 );
+		//itoa( valor,Buff,10 ); /* 10 significa decimal */
+
+
+        muestravaloranalogico(Buff);
+
+
+
 
 		switch( tipoensayo ){
 
@@ -209,8 +229,10 @@ void fsmtareaestadosUpdate( void ){
 				//muestro el valor de la medicion realizada, en Volts
 				//Recibo de la cola el valor analogico leido
 				xQueueReceive(valorAnLeido, &valorAnleido, 1);
+				xQueueReceive(Transmitancia, &Transmit, 1);
 				//Muestro valor de longitud de onda posicionado
-				valorlongondaselecc(longonda,valorAnleido);
+
+				valorlongondaselecc(longonda,valorAnleido,Transmit);
 
 
 				break;

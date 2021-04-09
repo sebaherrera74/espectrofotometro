@@ -46,11 +46,12 @@ void ensayolongitudonda(void);
 void seleccionlongonda(char *valorseleccionado);
 void confirmacionensayo(void);
 void confirmacionensayoEblo(void);
-void valorlongondaselecc(char *valorseleccionado,char *valoranleido);
+void valorlongondaselecc(char *valorseleccionado,char *valoranleido,char*transmitancia);
 void respsi(void);
 void respno(void);
 void ensayoenproceso(void);
 void ensayoenproceso_2(void);
+void muestravaloranalogico(char * valoranalogicoleido);
 /*=====[Prototypes (declarations) of public interrupt functions]=============*/
 
 /*=====[C++ - end]===========================================================*/

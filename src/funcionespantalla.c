@@ -22,6 +22,7 @@
 #define MSG_PANTALLA7   "NO Presione RETURN"
 #define MSG_PANTALLA8   "Longitud de onda\nseleccionada es:"
 #define MSG_PANTALLA8_1 "Absobancia:"
+#define MSG_PANTALLA8_2 "Transmitancia: "
 #define MSG_PANTALLA9   "Desea realizar el\nensayo barrido\nlongitud de onda ?"
 #define MSG_PANTALLA10  "POSICIONANDO MOTOR\nEspere....."
 #define MSG_PANTALLA11  "Realizando ensayo\nlongitud de onda\nEspere....."
@@ -122,6 +123,11 @@ void barraColores(void){
 			}
 		}
 	}
+
+   void muestravaloranalogico(char * valoranalogicoleido){
+	   TM_ILI9341_Puts(220,220,valoranalogicoleido , &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_YELLOW);
+   }
+
 	void tipoensayos(void){
 		TM_ILI9341_Puts(0,0, MSG_PANTALLA3, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_LIGHTCORAL);
 		TM_ILI9341_Puts(0,120, MSG_PANTALLA3_1, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_LIGHTCORAL);
@@ -155,12 +161,15 @@ void barraColores(void){
 
 	}
 
-	void valorlongondaselecc(char *valorseleccionado,char*valoranleido){
+	void valorlongondaselecc(char *valorseleccionado,char*valoranleido,char *transmitancia){
 		TM_ILI9341_Puts(0,0, MSG_PANTALLA8, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_LIGHTCORAL);
 		TM_ILI9341_Puts(160,60, valorseleccionado, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_YELLOW);
 		TM_ILI9341_DrawFilledRectangle(0, 100, 320, 110, ILI9341_DARKBLUE  );
 		TM_ILI9341_Puts(0,150, MSG_PANTALLA8_1, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_LIGHTCORAL);
 		TM_ILI9341_Puts(180,150, valoranleido, &TM_Font_16x26, ILI9341_COLOR_BLACK,  ILI9341_YELLOW);
+		TM_ILI9341_Puts(0,180, MSG_PANTALLA8_2, &TM_Font_16x26, ILI9341_COLOR_BLACK, ILI9341_LIGHTCORAL);
+		TM_ILI9341_Puts(220,180, transmitancia, &TM_Font_16x26, ILI9341_COLOR_BLACK,  ILI9341_YELLOW);
+		TM_ILI9341_Puts(290,180, "%", &TM_Font_16x26, ILI9341_COLOR_BLACK,  ILI9341_LIGHTCORAL);
 	}
 
 	void respsi(void){

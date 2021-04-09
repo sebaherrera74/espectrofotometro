@@ -26,7 +26,7 @@ QueueHandle_t valorLO_queue;
 QueueHandle_t valorLOselec_queue;
 QueueHandle_t valormaximoLO_queue;
 QueueHandle_t valorAnLeido;       //Valor analogico leido
-QueueHandle_t txQueue;
+QueueHandle_t Transmitancia;
 
 //Funcion que inicializa los semaforos,colas y mutex
 int sem_queues_init(void);
