@@ -26,6 +26,13 @@ extern "C" {
 
 /*=====[Definition macros of public constants]===============================*/
 
+#define COLORFONDO     ILI9341_GHOSTWHITE
+#define COLORLOFONDO   ILI9341_YELLOWGREEN
+#define COLORLETRA     ILI9341_COLOR_BLACK
+
+
+
+
 /*=====[Public function-like macros]=========================================*/
 
 /*=====[Definitions of public data types]====================================*/

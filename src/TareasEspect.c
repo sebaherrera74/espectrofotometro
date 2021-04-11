@@ -21,7 +21,9 @@
 
 /*=====[Macros de definicion de constantes privadas]=========================*/
 #define TIEMPO_ESPERA    2000
-
+#define VOLTREF          3.3
+#define RESOLUCION       1024
+#define ABSORMAX         2
 /*=====[Macros estilo funcion privadas]======================================*/
 
 /*=====[Definiciones de tipos de datos privados]=============================*/
@@ -48,7 +50,7 @@ static void envioDatosSeriales(char *longonda,char *valormedido);
 /*=====[Implementaciones de funciones publicas]==============================*/
 
 // ------------Implementacion de Tareas----------------
-
+//######################################################################################################################################################
 // Implementacion de la tarea polling teclas
 void tarea_teclas( void* taskParmPtr ){
 	/*taskENTER_CRITICAL();
@@ -75,6 +77,7 @@ void tarea_teclas( void* taskParmPtr ){
 	}
 }
 
+//######################################################################################################################################################
 void tarea_general( void* taskParmPtr ){
 	tTecla* config = (tTecla*) taskParmPtr;
 
@@ -89,6 +92,8 @@ void tarea_general( void* taskParmPtr ){
 		vTaskDelay(1/portTICK_RATE_MS);
 	}
 }
+
+//######################################################################################################################################################
 //Tarea va ser para el ensayo de longitud de onda determinada
 void tarea_LOdeterminada( void* taskParmPtr ){
 	tTecla* config = (tTecla*) taskParmPtr;
@@ -107,15 +112,13 @@ void tarea_LOdeterminada( void* taskParmPtr ){
 		if(xQueueReceive(valorLOselec_queue, &aux, portMAX_DELAY)){
 			stepperMotorL297MoveXNanometers(&steppermotor,aux);
 			//Una vez que el motor se posiciona, tomo la lectura del valor analogico
-			muestra = adcRead( CH1 ); //Leo valor de la muestra tomado
-			valorAnalogico=(3.3/1024)*muestra;
-			floatToString( valorAnalogico, Buff, 3 );
-
-			potencia=2-valorAnalogico;
+			muestra = adcRead( CH1 );                      //Leo valor de la muestra tomado,luego de posicionar el motor
+			valorAnalogico=(VOLTREF/RESOLUCION)*muestra;   //Valor analogico leido
+			floatToString( valorAnalogico, Buff, 3 );      //Convierto valor analogico en float y lo guardo en un buffer
+		                                                   //Esto es la absorbancia
+			potencia=ABSORMAX-valorAnalogico;
 			transmitancia=pow(10,potencia);
 			floatToString( transmitancia, BuffTrans, 1 );
-
-			//itoa( muestra,Buff,10 ); /* 10 significa decimal */
 			itoa( aux,Londa,10 );
 			envioDatosSeriales(Londa,Buff);
 			xQueueSend(valorAnLeido,&Buff,portMAX_DELAY);
@@ -123,13 +126,10 @@ void tarea_LOdeterminada( void* taskParmPtr ){
 
 		}
 		vTaskDelay(40/portTICK_RATE_MS);
-
-
-
-
 	}
 }
-
+//-------------------------------------------------------------------------------------------------------------------------------
+//######################################################################################################################################################
 //Tarea para el ensayo de barrido longitud de onda
 void tarea_barridoLO( void* taskParmPtr ){
 	tTecla* config = (tTecla*) taskParmPtr;
