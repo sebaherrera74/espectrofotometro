@@ -59,6 +59,7 @@ void respno(void);
 void ensayoenproceso(void);
 void ensayoenproceso_2(void);
 void muestravaloranalogico(char * valoranalogicoleido);
+void posicioncero_1(void);
 /*=====[Prototypes (declarations) of public interrupt functions]=============*/
 
 /*=====[C++ - end]===========================================================*/

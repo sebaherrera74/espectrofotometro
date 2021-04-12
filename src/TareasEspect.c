@@ -97,14 +97,16 @@ void tarea_general( void* taskParmPtr ){
 //Tarea va ser para el ensayo de longitud de onda determinada
 void tarea_LOdeterminada( void* taskParmPtr ){
 	tTecla* config = (tTecla*) taskParmPtr;
-	static volatile uint16_t muestra = 0;
+	static volatile uint16_t muestra[1000];
 	static volatile float valorAnalogico = 0;   //Esto seria directamente la absorbancia
 	static volatile float potencia = 0;
 	static volatile double transmitancia=0;
 	static char Buff[10];
 	static char BuffTrans[10];
 	static char Londa[10];
-	uint32_t aux=0;
+	uint32_t i,j,aux=0, total=0;
+	float promedio;
+
 	stepperMotorL297SetVelocidad(&steppermotor,velocidad_alta);
 	adcConfig( ADC_ENABLE ); /* Inicializo ADC */
 
@@ -112,8 +114,22 @@ void tarea_LOdeterminada( void* taskParmPtr ){
 		if(xQueueReceive(valorLOselec_queue, &aux, portMAX_DELAY)){
 			stepperMotorL297MoveXNanometers(&steppermotor,aux);
 			//Una vez que el motor se posiciona, tomo la lectura del valor analogico
-			muestra = adcRead( CH1 );                      //Leo valor de la muestra tomado,luego de posicionar el motor
-			valorAnalogico=(VOLTREF/RESOLUCION)*muestra;   //Valor analogico leido
+
+			for (i=0;i<1000;i++){
+				muestra[i]=adcRead( CH1 );
+			}
+
+			for(j=0;j<1000;j++){
+
+				total=muestra[j]+total;
+			}
+
+			promedio=total/1000;
+
+
+
+			//Leo valor de la muestra tomado,luego de posicionar el motor
+			valorAnalogico=(VOLTREF/RESOLUCION)*promedio;   //Valor analogico leido
 			floatToString( valorAnalogico, Buff, 3 );      //Convierto valor analogico en float y lo guardo en un buffer
 		                                                   //Esto es la absorbancia
 			potencia=ABSORMAX-valorAnalogico;
@@ -123,6 +139,8 @@ void tarea_LOdeterminada( void* taskParmPtr ){
 			envioDatosSeriales(Londa,Buff);
 			xQueueSend(valorAnLeido,&Buff,portMAX_DELAY);
 			xQueueSend(Transmitancia,&BuffTrans,portMAX_DELAY);
+			promedio=0;
+			total=0;
 
 		}
 		vTaskDelay(40/portTICK_RATE_MS);

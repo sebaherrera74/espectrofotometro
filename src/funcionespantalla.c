@@ -12,20 +12,20 @@
 
 #include "funcionespantalla.h"
 
-#define MSG_PANTALLA1   "El Motor no esta\n posicionado en CERO"
-#define MSG_PANTALLA2   "Posicionando motor\nen longitud de\nonda cero"
-#define MSG_PANTALLA3   "Ensayo determinada\n   longitud onda\n"
-#define MSG_PANTALLA3_1 "Ensayo Barrido\n longitud de onda\n"
-#define MSG_PANTALLA4   "Seleccione Longitud \n      de Onda"
-#define MSG_PANTALLA5   "Desea realizar el\nensayo en la\nlongitud de onda ?"
+#define MSG_PANTALLA1   "El Motor no esta    \nposicionado en CERO \n"
+#define MSG_PANTALLA2   "  Posicionando motor en      \n  longitud de onda cero...   \n"
+#define MSG_PANTALLA3   "Ensayo Determinada  \nlongitud onda       \n"
+#define MSG_PANTALLA3_1 "Ensayo Barrido      \nlongitud de onda    \n"
+#define MSG_PANTALLA4   "Seleccione Longitud \n      de Onda       \n"
+#define MSG_PANTALLA5   " Desea realizar el  \n ensayo en la       \n longitud de onda?  \n"
 #define MSG_PANTALLA6   "SI Presione  ENTER"
 #define MSG_PANTALLA7   "NO Presione RETURN"
 #define MSG_PANTALLA8   "Longitud de onda\nseleccionada es:"
 #define MSG_PANTALLA8_1 "Absobancia:"
 #define MSG_PANTALLA8_2 "Transmitancia: "
-#define MSG_PANTALLA9   "Desea realizar el\nensayo barrido\nlongitud de onda ?"
-#define MSG_PANTALLA10  "POSICIONANDO MOTOR\nEspere....."
-#define MSG_PANTALLA11  "Realizando ensayo\nlongitud de onda\nEspere....."
+#define MSG_PANTALLA9   "Desea realizar el   \nensayo:  Barrido    \nlongitud de onda?   \n"
+#define MSG_PANTALLA10  " POSICIONANDO MOTOR \n Aguarde.....       \n"
+#define MSG_PANTALLA11  "Realizando ensayo   \nlongitud de onda    \nEspere.....         \n"
 
 /*=====[Implementations of public functions]=================================*/
 
@@ -42,11 +42,20 @@ void cambiofondo(uint32_t color){
 }
 
 void posicioncero(void){
+	int i;
+	TM_ILI9341_Puts(0,0, MSG_PANTALLA1, &TM_Font_16x26, COLORLETRA, ILI9341_COLOR_RED);
+	TM_ILI9341_Puts(0,120, MSG_PANTALLA2, &TM_Font_11x18, COLORLETRA, ILI9341_COLOR_BLUE);
+}
+
+void posicioncero_1(void){
+	int i;
 	//TM_ILI9341_Fill(ILI9341_COLOR_RED);
 	TM_ILI9341_Puts(0,0, MSG_PANTALLA1, &TM_Font_16x26, COLORLETRA, ILI9341_COLOR_RED);
 	TM_ILI9341_Puts(0,120, MSG_PANTALLA2, &TM_Font_11x18, COLORLETRA, ILI9341_COLOR_BLUE);
-	TM_ILI9341_Puts(0,120, MSG_PANTALLA2, &TM_Font_11x18, COLORLETRA, ILI9341_COLOR_RED);
-}
+
+	}
+
+
 
 void barraColores(void){
 	uint16_t i=0;

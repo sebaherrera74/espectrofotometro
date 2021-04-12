@@ -125,6 +125,7 @@ void fsmtareaestadosUpdate( void ){
 		while(!swichtgpioEstado(&swichtgpio)){   	//veo la posicion del swicht sino esta en cero giro el motor,
 			//hasta que el motor se posicione long onda cero
 			stepperMotorL297Move1nanometerCCW(&steppermotor);
+
 		}
 		cambiofondo(COLORFONDO);
 		fsmState=ESTADO_MENU_ENSAYOS;
